@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>1장. Git과 재현가능한 연구 – AI를 이용한 사회과학 연구</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/02-cli.html" rel="next">
+<link href="../chapters/00-intro.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-9ece03dab9959ef5c886c0d317450186.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "일치 없음",
+    "search-matching-documents-text": "일치된 문서",
+    "search-copy-link-title": "검색 링크 복사",
+    "search-hide-matches-text": "추가 검색 결과 숨기기",
+    "search-more-match-text": "추가 검색결과",
+    "search-more-matches-text": "추가 검색결과",
+    "search-clear-button-title": "제거",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "취소",
+    "search-submit-button-title": "검색",
+    "search-label": "검색"
+  }
+}</script>
+<meta name="mermaid-theme" content="neutral">
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="사이드바 전환" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-git.html">1부. 기초 인프라</a></li><li class="breadcrumb-item"><a href="../chapters/01-git.html"><span class="chapter-title">1장. Git과 재현가능한 연구</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="사이드바 전환" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="검색" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">AI를 이용한 사회과학 연구</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="검색"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">서문</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/00-intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">서장. 왜 지금 AI인가 — 이 책의 사용법</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">1부. 기초 인프라</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="토글 섹션">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-git.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">1장. Git과 재현가능한 연구</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-cli.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">2장. CLI와 컨텍스트 엔지니어링</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">2부. AI 워크플로 설계</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="토글 섹션">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-skill.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">3장. Skill — 반복 연구 작업의 모듈화</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-agent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">4장. Agent와 멀티에이전트</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-harness.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">5장. Harness Engineering — AI를 신뢰 가능하게 만드는 구조</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">3부. 연구 파이프라인 사례</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="토글 섹션">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-rag.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">6장. RAG와 문헌 검토 — Zotero 연동</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/07-annotation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">7장. LLM 텍스트 어노테이션</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">4부. 마치며</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="토글 섹션">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/08-close.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">8장. 검증·공개·다음에 남겨 둔 것</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">목차</h2>
+   
+  <ul>
+  <li><a href="#사회과학의-재현가능성-위기와-git" id="toc-사회과학의-재현가능성-위기와-git" class="nav-link active" data-scroll-target="#사회과학의-재현가능성-위기와-git">1.1 사회과학의 재현가능성 위기와 Git</a>
+  <ul class="collapse">
+  <li><a href="#두-개의-충격" id="toc-두-개의-충격" class="nav-link" data-scroll-target="#두-개의-충격">1.1.1 두 개의 충격</a></li>
+  <li><a href="#용어-정리-재현과-반복" id="toc-용어-정리-재현과-반복" class="nav-link" data-scroll-target="#용어-정리-재현과-반복">1.1.2 용어 정리: 재현과 반복</a></li>
+  </ul></li>
+  <li><a href="#git의-핵심-개념-15분-만에" id="toc-git의-핵심-개념-15분-만에" class="nav-link" data-scroll-target="#git의-핵심-개념-15분-만에">1.2 Git의 핵심 개념 — 15분 만에</a>
+  <ul class="collapse">
+  <li><a href="#스냅샷-저장이-아니라-기록" id="toc-스냅샷-저장이-아니라-기록" class="nav-link" data-scroll-target="#스냅샷-저장이-아니라-기록">1.2.1 스냅샷: 저장이 아니라 기록</a></li>
+  <li><a href="#다섯-개의-명령" id="toc-다섯-개의-명령" class="nav-link" data-scroll-target="#다섯-개의-명령">1.2.2 다섯 개의 명령</a></li>
+  <li><a href="#gui를-써도-된다" id="toc-gui를-써도-된다" class="nav-link" data-scroll-target="#gui를-써도-된다">1.2.3 GUI를 써도 된다</a></li>
+  </ul></li>
+  <li><a href="#github와-협업" id="toc-github와-협업" class="nav-link" data-scroll-target="#github와-협업">1.3 GitHub와 협업</a>
+  <ul class="collapse">
+  <li><a href="#로컬-저장소와-원격-저장소" id="toc-로컬-저장소와-원격-저장소" class="nav-link" data-scroll-target="#로컬-저장소와-원격-저장소">1.3.1 로컬 저장소와 원격 저장소</a></li>
+  <li><a href="#첫-원격-저장소-만들기-my-thesis를-github에-올리기" id="toc-첫-원격-저장소-만들기-my-thesis를-github에-올리기" class="nav-link" data-scroll-target="#첫-원격-저장소-만들기-my-thesis를-github에-올리기">1.3.2 첫 원격 저장소 만들기: my-thesis를 GitHub에 올리기</a></li>
+  <li><a href="#브랜치와-pull-request-지도교수-피드백의-구조화" id="toc-브랜치와-pull-request-지도교수-피드백의-구조화" class="nav-link" data-scroll-target="#브랜치와-pull-request-지도교수-피드백의-구조화">1.3.3 브랜치와 Pull Request: 지도교수 피드백의 구조화</a></li>
+  <li><a href="#병합-갈래는-사라지지-않는다" id="toc-병합-갈래는-사라지지-않는다" class="nav-link" data-scroll-target="#병합-갈래는-사라지지-않는다">1.3.4 병합: 갈래는 사라지지 않는다</a></li>
+  <li><a href="#issues-연구-노트의-공공화" id="toc-issues-연구-노트의-공공화" class="nav-link" data-scroll-target="#issues-연구-노트의-공공화">1.3.5 Issues: 연구 노트의 공공화</a></li>
+  </ul></li>
+  <li><a href="#연구-프로젝트의-폴더-구조" id="toc-연구-프로젝트의-폴더-구조" class="nav-link" data-scroll-target="#연구-프로젝트의-폴더-구조">1.4 연구 프로젝트의 폴더 구조</a></li>
+  <li><a href="#quarto와-자동화-파이프라인" id="toc-quarto와-자동화-파이프라인" class="nav-link" data-scroll-target="#quarto와-자동화-파이프라인">1.5 Quarto와 자동화 파이프라인</a>
+  <ul class="collapse">
+  <li><a href="#코드와-서술을-한-문서에" id="toc-코드와-서술을-한-문서에" class="nav-link" data-scroll-target="#코드와-서술을-한-문서에">1.5.1 코드와 서술을 한 문서에</a></li>
+  <li><a href="#github-actions-커밋하면-배포된다" id="toc-github-actions-커밋하면-배포된다" class="nav-link" data-scroll-target="#github-actions-커밋하면-배포된다">1.5.2 GitHub Actions: 커밋하면 배포된다</a></li>
+  <li><a href="#실전-예제-gesis-워크숍-실습-따라가기" id="toc-실전-예제-gesis-워크숍-실습-따라가기" class="nav-link" data-scroll-target="#실전-예제-gesis-워크숍-실습-따라가기">1.5.3 실전 예제: GESIS 워크숍 실습 따라가기</a></li>
+  </ul></li>
+  <li><a href="#실습-과제" id="toc-실습-과제" class="nav-link" data-scroll-target="#실습-과제">1.6 실습 과제</a></li>
+  <li><a href="#이-장의-체크리스트" id="toc-이-장의-체크리스트" class="nav-link" data-scroll-target="#이-장의-체크리스트">이 장의 체크리스트</a></li>
+  <li><a href="#더-읽을거리" id="toc-더-읽을거리" class="nav-link" data-scroll-target="#더-읽을거리">더 읽을거리</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-git.html">1부. 기초 인프라</a></li><li class="breadcrumb-item"><a href="../chapters/01-git.html"><span class="chapter-title">1장. Git과 재현가능한 연구</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">1장. Git과 재현가능한 연구</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">노트</span>이 장에서 배우는 것
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>재현가능성 위기와 버전 관리의 관계를 설명할 수 있다</p></li>
+<li><p>clone–branch–commit–push–PR의 기본 사이클을 수행할 수 있다</p></li>
+<li><p>연구 프로젝트 폴더를 재현가능성 기준에 맞게 조직할 수 있다</p></li>
+<li><p>Quarto와 GitHub Pages로 분석 결과를 자동 배포할 수 있다</p></li>
+</ol>
+</div>
+</div>
+<p>이 책은 AI를 다루는 책인데, 첫 장은 Git으로 시작한다. 여기에는 이유가 있다. 앞으로 여러분은 AI에게 코드를 쓰게 하고, 수만 건의 데이터를 분류하게 하고, 원고 초안을 다듬게 할 것이다. 그 모든 작업의 산출물은 파일이고, 그 파일들이 언제 어떻게 왜 바뀌었는지를 추적할 수 없다면, AI는 생산성의 도구가 아니라 혼돈의 증폭기가 된다. Git은 이 책의 다른 모든 장이 딛고 서는 바닥이다. 3장의 스킬은 Git으로 공유되고, 5장의 검증은 Git 커밋을 롤백 단위로 삼으며, 8장의 투명성 규범은 Git 이력을 증거로 쓴다.</p>
+<p>다행히 좋은 소식이 있다. 이 장에서 배워야 할 명령어는 열 개가 되지 않는다. Git은 소프트웨어 개발자용 기능이 방대하지만, 1인 또는 소규모 연구에 필요한 부분은 놀랄 만큼 작다. 우리는 그 작은 부분만 정확히 배운다.</p>
+<hr>
+<section id="사회과학의-재현가능성-위기와-git" class="level2">
+<h2 class="anchored" data-anchor-id="사회과학의-재현가능성-위기와-git">1.1 사회과학의 재현가능성 위기와 Git</h2>
+<section id="두-개의-충격" class="level3">
+<h3 class="anchored" data-anchor-id="두-개의-충격">1.1.1 두 개의 충격</h3>
+<p>2015년, 사회과학계는 두 번의 충격을 연달아 겪었다.</p>
+<p>첫 번째는 사회과학 학계 전반에 대한 충격이었다. Open Science Collaboration이 심리학 주요 학술지에 실린 연구 100편을 원저자들의 협조하에 그대로 다시 수행했더니, 원논문과 같은 방향의 유의한 결과가 나온 것은 절반에 크게 못 미쳤다. 개별 연구자의 부정이 아니라, 분야 전체의 관행 — 유연한 분석 재량, 선택적 보고, 출판 편향 — 이 문제라는 것이 드러난 사건이었다.</p>
+<p>두 번째는 정치학계 내의 충격이었다. 동성혼에 대한 태도가 짧은 대면 대화로 지속적으로 바뀔 수 있다는, Science에 실려 큰 주목을 받은 설문 실험 연구가 있었다(LaCour &amp; Green, 2014). 후속 연구를 준비하던 두 대학원생이 원자료의 통계적 특성에서 이상한 패턴을 발견했고, 추적 끝에 설문 자료 자체가 실재하지 않는다는 것이 밝혀졌다(Broockman, Kalla &amp; Aronow, 2015). 논문은 철회되었다. 이 사건(LaCour 사건)에서 주목할 부분은 부정 그 자체보다 <strong>발각의 경로</strong>다. 부정을 잡아낸 것은 심사위원도 편집자도 아닌, 공개된 데이터를 재분석한 다른 연구자들이었다. 자료와 절차가 공개되어 있을 때만 작동하는 학문의 자정 장치가 실제로 작동한 드문 순간이었다.</p>
+<p>두 사건이 남긴 교훈은 같다. 연구의 신뢰성은 결과의 그럴듯함이 아니라 <strong>절차의 추적 가능성</strong>에서 나온다. 그리고 이 교훈은 제도가 되었다. 정치학 주요 학술지들은 게재 조건으로 재현 자료(replication materials) 제출을 요구하기 시작했고, AJPS처럼 제3의 기관이 제출된 코드를 실제로 돌려 결과가 재현되는지 <strong>검증한 뒤에야</strong> 게재를 확정하는 저널도 생겼다. 여러분이 장차 투고할 학술지는 여러분의 코드가 남의 컴퓨터에서 돌아갈 것을 요구한다. 이것은 더 이상 미덕이 아니라 자격 요건이다.</p>
+</section>
+<section id="용어-정리-재현과-반복" class="level3">
+<h3 class="anchored" data-anchor-id="용어-정리-재현과-반복">1.1.2 용어 정리: 재현과 반복</h3>
+<p>논의를 정확히 하기 위해 용어 둘을 구분한다.</p>
+<ul>
+<li><strong>재현가능성(reproducibility)</strong>: <em>같은</em> 데이터와 <em>같은</em> 코드로 <em>같은</em> 결과가 나오는가. 이것은 연구의 참·거짓 이전에, 연구가 검사 가능한 대상이기 위한 최소 조건이다.</li>
+<li><strong>반복가능성(replicability)</strong>: <em>새로운</em> 데이터로 <em>같은 설계</em>를 수행했을 때 결과가 유지되는가. 이것은 발견의 일반성에 관한 문제다.</li>
+</ul>
+<p>심리학 100편 프로젝트가 시험한 것은 반복가능성이고, LaCour 사건에서 무너진 것은 재현가능성 이전의 문제(자료의 실재)였다. 이 장이 다루는 것은 앞의 것, 재현가능성이다. 반복가능성은 연구 설계의 문제라 도구로 해결할 수 없지만, 재현가능성은 상당 부분 <strong>작업 습관의 문제</strong>라 도구로 해결할 수 있다. 그 도구의 중심에 버전 관리가 있다.</p>
+<p>한 가지를 더 짚자. 재현가능성의 일차 수혜자는 학계가 아니라 <strong>여러분 자신</strong>이다. 6개월 뒤의 나는 사실상 타인이다. 심사평이 도착해 “표 3의 표본이 왜 2,847명인지” 물어올 때, 답을 아는 것은 그때의 내가 아니라 그때 남겨 둔 기록이다. 재현가능한 연구란 미래의 나에게 보내는 잘 정리된 인수인계 문서다.</p>
+<blockquote class="blockquote">
+<p>📦 <strong>박스 1-1. final_최종_진짜최종_v3(수정).docx의 비극</strong></p>
+<p>다음 폴더가 낯설지 않을 것이다.</p>
+<pre><code>논문/
+├── 분석_최종.R
+├── 분석_최종2.R
+├── 분석_최종2_교수님코멘트반영.R
+├── 분석_진짜최종.R
+├── draft_v3_final_FINAL(2).docx
+└── 데이터_수정본_백업_옛날거.csv</code></pre>
+<p>이 방식의 문제는 게으름이 아니다. 오히려 부지런함의 산물이다 — 버전을 보존하려는 올바른 본능이, 도구 없이 파일명만으로 구현되어 실패하는 것이다. 파일명 버전 관리는 세 가지 질문에 답하지 못한다. ① 최종2와 진짜최종의 <strong>차이가 무엇인가</strong>? ② 그 변경을 <strong>왜</strong> 했는가? ③ 어제까지 되던 분석이 오늘 안 된다면 <strong>어느 시점으로 돌아가야</strong> 하는가? Git은 정확히 이 세 질문에 답하는 도구다. 차이(diff), 이유(커밋 메시지), 복원(checkout). 여러분의 본능은 옳았다. 도구가 없었을 뿐이다.</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="git의-핵심-개념-15분-만에" class="level2">
+<h2 class="anchored" data-anchor-id="git의-핵심-개념-15분-만에">1.2 Git의 핵심 개념 — 15분 만에</h2>
+<section id="스냅샷-저장이-아니라-기록" class="level3">
+<h3 class="anchored" data-anchor-id="스냅샷-저장이-아니라-기록">1.2.1 스냅샷: 저장이 아니라 기록</h3>
+<p>Git의 핵심 아이디어는 다음과 같다. <strong>Git은 프로젝트 폴더 전체의 스냅샷들을 시간순으로 보관하는 사진첩이다.</strong> Ctrl+S가 ’지금 상태로 덮어쓰기’라면, 커밋(commit)은 ’지금 상태를 사진 찍어 앨범에 추가하기’다. 덮어쓰기는 과거를 지우지만, 사진첩은 과거를 쌓는다. 그래서 커밋을 아무리 해도 예전 상태는 사라지지 않으며, 언제든 특정 사진 시점의 폴더로 돌아갈 수 있다.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-git-snapshot" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-git-snapshot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-git-snapshot">gitGraph
+   commit id: "프로젝트 시작"
+   commit id: "결측 처리 추가"
+   commit id: "가중 기술통계"
+   branch robustness-check
+   commit id: "대안 모형 실험"
+   commit id: "클러스터 SE 시도"
+   checkout main
+   commit id: "신뢰도 계산"
+   merge robustness-check id: "강건성 검증 병합"
+   commit id: "그림 스크립트"
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-git-snapshot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;1.1: Git의 정신 모형: 커밋은 저장이 아니라 스냅샷의 축적이다. 갈래(branch)에서의 실험은 본 줄기를 건드리지 않는다.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>사진에는 세 가지가 함께 기록된다. 무엇이 바뀌었는지(변경 내용), 누가 언제 찍었는지(작성자·시각), 그리고 <strong>왜 찍었는지</strong>(커밋 메시지). 이 마지막 항목이 Git을 단순 백업과 구별 짓는다. “결측 처리 방식을 listwise에서 다중대체로 변경”이라는 메시지가 붙은 스냅샷들의 연쇄는, 그 자체로 연구의 의사결정 일지가 된다.</p>
+</section>
+<section id="다섯-개의-명령" class="level3">
+<h3 class="anchored" data-anchor-id="다섯-개의-명령">1.2.2 다섯 개의 명령</h3>
+<p>1인 연구에 필요한 Git의 전부는 다음 다섯 개다. 터미널이 낯설면 그대로 따라 치기만 하면 된다(터미널 자체는 2장에서 차분히 다룬다).</p>
+<p>먼저 터미널을 여는 법부터. macOS에서는 Spotlight(⌘ + 스페이스)에서 “터미널”을 검색하거나, 응용 프로그램 → 유틸리티 → 터미널을 실행한다. 윈도우에서는 시작 메뉴에서 “PowerShell”을 검색해 실행해도 되지만, Git을 설치할 때 함께 깔리는 <strong>Git Bash</strong>를 권한다 — 이 책의 명령을 macOS와 완전히 동일하게 따라 할 수 있다.</p>
+<p>준비물은 하나, Git 자체다. 설치 여부는 터미널에 다음을 쳐 보면 바로 안다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> <span class="at">--version</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>git version 2.50.1 (Apple Git-155)</code></pre>
+</div>
+</div>
+<p>이런 식의 버전 번호가 나오면 준비된 것이다(숫자는 달라도 무방하다). “command not found”가 나오면 설치가 필요하다. macOS는 위 명령을 치는 순간 개발자 도구 설치 안내 창이 뜨므로 그대로 따르면 되고, 윈도우는 git-scm.com/downloads에서 설치 파일을 받아 기본 설정 그대로 설치한다(이때 Git Bash가 함께 설치된다). 설치가 꼬였거나 더 자세한 안내가 필요하면 <em>Happy Git and GitHub for the useR</em>의 설치 장(happygitwithr.com/install-git)이 운영체제별로 친절하다.</p>
+<p>이제 다섯 명령을 실제 화면과 함께 하나씩 밟아 보자. <code>my-thesis</code>라는 프로젝트 폴더에 다음 네 줄짜리 스크립트가 <code>분석.R</code>라는 이름으로 저장되어 있다고 하자. 폴더에 든 파일은 아직 이것 하나뿐이다(내용은 가중 기술통계의 축소판인데, 지금 중요하지 않다 — 텍스트 파일이면 무엇이든 된다).</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="R 스크립트 — 분석.R">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">노트</span>R 스크립트 — 분석.R
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 가중 기술통계</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>des <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">weights =</span> <span class="sc">~</span>wt, <span class="at">data =</span> df)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">svymean</span>(<span class="sc">~</span>trust, des)</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<p>이 책에서 <strong>회색 블록은 터미널에 입력하는 명령</strong>이고, 지금처럼 <strong>테두리 박스에 파일 이름이 붙은 것은 편집기로 만들어 저장하는 파일의 내용</strong>이다. 둘을 헷갈리면 스크립트를 터미널에 붙여 넣게 되니 구분해 두자.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 0. 최초 1회: 프로젝트 폴더를 Git 저장소로 만든다</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> my-thesis</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>Initialized empty Git repository in …/my-thesis/.git/</code></pre>
+</div>
+</div>
+<p>경로 앞부분은 지면에 맞게 줄였다 — 여러분의 화면에는 폴더의 전체 경로가 나온다. 요지는 마지막 부분이다: 이 폴더 안에 <code>.git</code>이라는 숨은 폴더, 곧 사진첩 자체가 생겼다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 현재 상태 확인 — 무엇이 바뀌었나 (가장 자주 쓰는 명령)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>On branch main
+
+No commits yet
+
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+    분석.R
+
+nothing added to commit but untracked files present (use "git add" to track)</code></pre>
+</div>
+</div>
+<p>Git이 다음 할 일을 출력 안에서 직접 알려 준다(“use git add …”). <code>분석.R</code>가 아직 추적되지 않는(untracked) 파일이라는 보고다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. 사진에 담을 파일 지정 — 고친 파일이 많으면 git add . 로 전부 담는다</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add 분석.R</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>git add</code>는 성공하면 아무것도 출력하지 않는다. 침묵이 정상이다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. 사진 찍기 (커밋)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"가중치 적용 기술통계 추가"</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>[main (root-commit) 3829bf6] 가중치 적용 기술통계 추가
+ 1 file changed, 4 insertions(+)
+ create mode 100644 분석.R</code></pre>
+</div>
+</div>
+<p>출력을 한 줄씩 읽어 보자. 첫 줄의 <code>root-commit</code>은 이 저장소의 첫 커밋이라는 표시이고, <code>3829bf6</code>이 방금 찍힌 사진의 고유 번호(커밋 해시)다. <code>1 file changed, 4 insertions(+)</code>는 방금 만든 <code>분석.R</code>의 네 줄이 전부 새로 기록되었다는 요약이다 — 새 파일의 모든 줄은 Git의 눈에 ’추가된 줄’이다. 마지막 줄 <code>create mode 100644 분석.R</code>는 이 파일이 사진첩에 처음 등록되었다는 뜻이다(<code>100644</code>는 일반 파일이라는 내부 표시로, 지금은 넘어가도 된다).</p>
+<p>이제 파일 끝에 <code>svymean(~interest, des)</code> 한 줄을 추가한 뒤, 무엇이 바뀌었는지 비교해 보자.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. 특정 파일의 변경 내용 비교</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff 분석.R</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>diff --git a/분석.R b/분석.R
+index e7f98d5..3ea56d5 100644
+--- a/분석.R
++++ b/분석.R
+@@ -2,3 +2,4 @@
+ library(survey)
+ des &lt;- svydesign(ids = ~1, weights = ~wt, data = df)
+ svymean(~trust, des)
++svymean(~interest, des)</code></pre>
+</div>
+</div>
+<p>바뀐 줄만 <code>+</code> 기호로 표시된다. 출력 머리의 <code>a/분석.R</code>와 <code>b/분석.R</code>가 의아할 수 있다 — 커밋은 한 번뿐인데 왜 a와 b가 있는가? diff는 언제나 두 시점의 <strong>비교</strong>이기 때문이다. <code>a/</code>는 비교의 기준, 즉 마지막 커밋에 담긴 <code>분석.R</code>이고, <code>b/</code>는 지금 작업 폴더에 있는 <code>분석.R</code>이다(중간의 <code>@@ -2,3 +2,4 @@</code>는 “기준의 2행부터 3줄이, 현재의 2행부터 4줄이 되었다”는 위치 표시다). 요컨대 <code>git diff</code>는 마지막 사진과 지금 폴더의 차이를 보여 주는 명령이다.</p>
+<p>이 한 줄을 두 번째 커밋으로 기록한 뒤(<code>git add 분석.R</code> → <code>git commit -m "정치관심 변수 기술통계 추가"</code>), 앨범을 넘겨 보자.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. 앨범 넘겨 보기</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--oneline</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>8a4a211 정치관심 변수 기술통계 추가
+3829bf6 가중치 적용 기술통계 추가</code></pre>
+</div>
+</div>
+<p>커밋 메시지의 연쇄가 그대로 연구 일지다. (해시 값은 저장소마다 다르게 찍힌다. 같은 내용을 따라 해도 여러분의 화면에는 다른 값이 보이는 것이 정상이다.)</p>
+<p>작업의 리듬은 이렇다: 코드를 고친다 → <code>status</code>로 확인한다 → <code>add</code>로 지정한다 → <code>commit</code>으로 기록한다. 하루에 몇 번씩, <strong>의미 있는 작업 단위마다</strong> 커밋한다. “오후 작업”이 아니라 “신뢰도 계산 함수 추가”가 한 커밋이다. 단위가 작을수록 앨범은 유용해진다 — 문제가 생겼을 때 돌아갈 지점이 촘촘해지기 때문이다.</p>
+<p>커밋 메시지 하나만 규칙을 정하자. <strong>“무엇을”이 아니라 “왜”가 필요할 때는 왜를 쓴다.</strong> <code>git diff</code>가 무엇이 바뀌었는지는 이미 보여 주므로, 메시지의 부가가치는 이유에 있다. “수정” “업데이트” 같은 메시지는 여섯 달 뒤의 나에게 아무것도 말해 주지 않는다.</p>
+</section>
+<section id="gui를-써도-된다" class="level3">
+<h3 class="anchored" data-anchor-id="gui를-써도-된다">1.2.3 GUI를 써도 된다</h3>
+<p>명령줄이 불편하면 GUI를 써도 전혀 문제없다. 선택지는 크게 둘이다. 하나는 <strong>GitHub Desktop</strong>(desktop.github.com) — GitHub가 만든 무료 프로그램으로, 위의 다섯 동작이 전부 버튼과 목록으로 제공되어 터미널 없이도 이 장의 흐름을 그대로 따라갈 수 있다. 다른 하나는 여러분이 이미 쓰고 있을 작업 환경 안의 Git이다: RStudio와 VS Code에는 Git 패널이 내장되어 있어 체크박스로 add, 입력창으로 commit을 할 수 있다(두 프로그램이 낯설다면 박스 1-2). 중요한 것은 인터페이스가 아니라 스냅샷 모형의 이해와 커밋의 습관이다. 다만 명령어를 한 번은 손으로 쳐 보기를 권한다 — GUI가 무엇의 단축 버튼인지 알고 쓰는 것과 모르고 쓰는 것은, 문제가 생겼을 때의 대응력이 다르다.</p>
+<blockquote class="blockquote">
+<p>📦 <strong>박스 1-2. RStudio와 VS Code가 처음이라면</strong></p>
+<p>이 책에서 계속 마주칠 두 작업 환경을 짧게 소개한다. <strong>RStudio</strong>는 R 전용 통합개발환경(IDE)이다. 스크립트 편집기, 콘솔, 그림 창이 한 화면에 모여 있고, 이 장과 관련해서는 우상단에 Git 패널이 있다 — 계량 분석 수업에서 이미 만났을 가능성이 크다. <strong>VS Code</strong>는 마이크로소프트의 범용 코드 편집기다. R뿐 아니라 Python, LaTeX, 그리고 2장부터 등장하는 CLI 에이전트까지 한곳에서 다루며, 왼쪽의 소스 제어(Source Control) 패널이 Git을 담당한다. 이 책의 실습은 어느 쪽에서든 따라 할 수 있다 — R 중심의 초반부는 RStudio가, AI 에이전트를 본격적으로 쓰는 장들에서는 VS Code가 자연스럽다.</p>
+<div id="fig-rstudio-git" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rstudio-git-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../figures/fig1-1_rstudio_git.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rstudio-git-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;1.2: RStudio의 Git 패널(2026년 8월 캡처). <code>Staged</code> 열의 체크박스가 <code>git add</code>이고, <code>Commit</code> 버튼이 <code>git commit</code>이다. <code>Status</code> 열의 파란 <code>M</code>은 수정된 파일, 노란 <code>?</code>는 아직 추적되지 않는 파일 — 1.2절에서 <code>git status</code>가 글자로 알려 주던 그 구분이다. 오른쪽 끝의 <code>main</code>은 지금 서 있는 브랜치 이름이고, <code>Pull</code>·<code>Push</code>는 1.3절에서 배울 원격 저장소와의 주고받기다.
+</figcaption>
+</figure>
+</div>
+<div id="fig-vscode-scm" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-vscode-scm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../figures/fig1-2_vscode_scm.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-vscode-scm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;1.3: VS Code의 소스 제어(Source Control) 패널(2026년 8월 캡처). 같은 저장소를 같은 시점에 연 화면이다. 위쪽 입력창에 커밋 메시지를 쓰고 Commit을 누르면 <code>git commit</code>이 실행되고, 목록 오른쪽의 <code>M</code>·<code>U</code>는 RStudio의 <code>M</code>·<code>?</code>와 같은 뜻이다. 아래 GRAPH 영역은 지금까지의 커밋을 사진첩처럼 늘어놓는다. 이름과 배치만 다를 뿐, 두 화면이 부르는 명령은 하나다.
+</figcaption>
+</figure>
+</div>
+</blockquote>
+<p>💻 <strong>따라 하기</strong>: 지금 진행 중인 연구 폴더(없으면 새 폴더에 R 스크립트 하나)를 골라 <code>git init</code>부터 커밋 두 개까지 만들어 보라. 두 번째 커밋 전에 코드 한 줄을 바꾸고, <code>git diff</code>로 변경이 표시되는 것을 확인하라.</p>
+<hr>
+</section>
+</section>
+<section id="github와-협업" class="level2">
+<h2 class="anchored" data-anchor-id="github와-협업">1.3 GitHub와 협업</h2>
+<section id="로컬-저장소와-원격-저장소" class="level3">
+<h3 class="anchored" data-anchor-id="로컬-저장소와-원격-저장소">1.3.1 로컬 저장소와 원격 저장소</h3>
+<p>여기까지의 Git은 내 컴퓨터 안의 일이다. GitHub는 그 사진첩의 사본을 클라우드에 두는 서비스다(같은 역할의 GitLab 등도 있다). 원격 사본이 생기면 세 가지가 가능해진다. ① 백업 — 노트북이 고장 나도 연구는 산다. ② 동기화 — 연구실 컴퓨터와 집 컴퓨터가 같은 이력을 공유한다. ③ 협업 — 공동연구자와 지도교수가 같은 저장소에서 일한다.</p>
+<p>클라우드에 둔다는 점에서 Dropbox나 Google Drive를 떠올리기 쉽지만, 역할이 다르다. 동기화 서비스가 복제하는 것은 폴더의 ‘지금 상태’ 하나다. 저장하는 순간 그 최신본이 모든 기기의 유일본이 되고, 변경의 단위도 이유도 남지 않는다(버전 복원 기능이 있긴 하지만 파일 하나 단위이고 보존 기간도 짧다). GitHub에 올라가는 것은 ’지금 상태’가 아니라 1.2절에서 만든 사진첩 전체다 — 무엇이, 왜, 어떤 순서로 바뀌어 왔는지가 커밋 단위로 통째로 옮겨진다. 그래서 Dropbox는 백업은 해 주지만, “지난달의 분석으로 돌아가기”와 “이 수치가 왜 바뀌었는지 추적하기”는 해 주지 못한다. 실무 경고 하나: 둘을 겹쳐 쓰지는 마라. Git 저장소를 Dropbox 동기화 폴더 안에 두면, 동기화가 저장소 내부 파일(<code>.git/</code>)을 어긋나게 만들어 저장소가 깨질 수 있다.</p>
+<p>저장소를 만들 때는 공개 범위를 고른다. <strong>공개(public)</strong> 저장소는 URL을 아는 누구나 열람할 수 있고, <strong>비공개(private)</strong> 저장소는 초대한 사람 — 공동연구자, 지도교수 — 만 접근할 수 있다. 연구 관례는 단순하다. 진행 중인 연구는 비공개로 시작하고, 논문이 게재될 때 replication 패키지를 공개로 전환한다. 비공개에서 공개로는 설정에서 클릭 몇 번이지만, 그 반대 방향은 사실상 없다 — 한 번 공개된 이력은 누군가 이미 복제했을 수 있기 때문이다. 그러니 기본값은 비공개로 두고, 공개는 의식적 결정으로 남겨 두라(공개 시점에 무엇을 점검해야 하는지는 8장에서 다룬다).</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-git-remote" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-git-remote-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-git-remote">flowchart LR
+    subgraph L["내 컴퓨터 (로컬)"]
+        A["작업 폴더"] --&gt;|"add + commit"| B["로컬 저장소&lt;br/&gt;(.git)"]
+    end
+    subgraph R["GitHub (원격)"]
+        C["원격 저장소"]
+    end
+    B --&gt;|"push"| C
+    C --&gt;|"pull"| B
+    D["공동연구자 /&lt;br/&gt;다른 컴퓨터 /&lt;br/&gt;AI 에이전트 세션"] --&gt;|"push"| C
+    classDef gate fill:#fff,stroke:#9E1B32,stroke-width:2px
+    classDef ai fill:#fff,stroke:#6B7280,stroke-dasharray:5 4
+    class D ai
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-git-remote-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;1.4: 저장소는 두 곳에 존재한다. 어느 쪽의 변경이든 push/pull로 합류한다.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>새로 필요한 명령은 둘뿐이다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push   <span class="co"># 내 커밋들을 원격 저장소로 올린다</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull   <span class="co"># 원격의 새 커밋들을 내 컴퓨터로 가져온다</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<p>남의 저장소(혹은 다른 컴퓨터의 내 저장소)에서 시작할 때는 <code>git clone 주소</code> — 저장소 전체를, 전체 이력과 함께 복제한다. 이 명령을 기억해 두라. 이 책의 실습 코드 저장소도, 학술지의 replication 패키지도, 3장에서 만들 연구실 공유 스킬도 모두 clone으로 받는다.</p>
+</section>
+<section id="첫-원격-저장소-만들기-my-thesis를-github에-올리기" class="level3">
+<h3 class="anchored" data-anchor-id="첫-원격-저장소-만들기-my-thesis를-github에-올리기">1.3.2 첫 원격 저장소 만들기: my-thesis를 GitHub에 올리기</h3>
+<p>명령을 알았으니 실제로 한 번 올려 보자. 1.2절에서 커밋 두 개를 쌓아 둔 그 <code>my-thesis</code> 폴더가 재료다. 순서는 <strong>GitHub에 빈 저장소를 만들고 → 내 폴더에 그 주소를 알려 주고 → push</strong>, 세 단계다.</p>
+<p><strong>1단계. GitHub에서 빈 저장소를 만든다.</strong> 로그인한 뒤 우상단 <code>+</code> 메뉴에서 “New repository”를 고르면 짧은 양식이 나온다. 채울 것은 사실상 넷이다.</p>
+<ul>
+<li><strong>Repository name</strong>: <code>my-thesis</code>. 로컬 폴더 이름과 같게 두면 헷갈릴 일이 없다.</li>
+<li><strong>Description</strong>: 한 줄 소개(선택). 목록에서 저장소를 구별하는 데 도움이 된다.</li>
+<li><strong>Public / Private</strong>: 진행 중인 연구이므로 <strong>Private</strong>을 고른다(1.3.1의 원칙).</li>
+<li><strong>“Add a README file” 등 초기화 항목</strong>: 전부 <strong>체크하지 않는다.</strong> 이것이 초심자가 가장 자주 걸리는 함정이다. 이미 커밋 이력이 있는 로컬 폴더를 올릴 때 원격에도 커밋이 하나 생겨 버리면, 두 이력이 공통 조상 없이 갈라져 첫 push가 거부된다. 지금은 <strong>완전히 빈 저장소</strong>가 필요하다.</li>
+</ul>
+<p>“Create repository”를 누르면 파일 목록 대신 안내 화면이 뜬다. 저장소 주소(<code>https://github.com/&lt;내계정&gt;/my-thesis.git</code>)와 함께 “…or push an existing repository from the command line”이라는 항목이 있고, 바로 아래에 우리가 칠 명령이 그대로 적혀 있다. GitHub가 다음 할 일을 알려 주는 셈이다.</p>
+<div id="fig-github-new" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-github-new-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../figures/fig1-3_github_new_repo.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-github-new-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;1.5: GitHub의 New repository 양식(2026년 8월 캡처). 위에서 말한 네 항목이 이 한 화면에 있다 — Repository name에 <code>my-thesis</code>, Description은 비워 둔 채, Choose visibility는 <code>Private</code>, 그리고 Add README·Add .gitignore·Add license는 전부 끄거나 “No”로 둔 상태다. 이름 아래 초록색 표시는 그 이름이 아직 비어 있다는 뜻이다.
+</figcaption>
+</figure>
+</div>
+<p><strong>2단계. 내 폴더에 원격 주소를 알려 준다.</strong> 터미널로 돌아와 <code>my-thesis</code> 폴더에서:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin https://github.com/<span class="op">&lt;</span>내계정<span class="op">&gt;</span>/my-thesis.git</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote <span class="at">-v</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>origin  https://github.com/woochangkang/my-thesis.git (fetch)
+origin  https://github.com/woochangkang/my-thesis.git (push)</code></pre>
+</div>
+</div>
+<p><code>origin</code>은 “이 원격 저장소를 앞으로 이렇게 부르겠다”는 별명이다(관례적으로 첫 원격에 붙이는 이름이며, 바꿀 수 있지만 그럴 이유는 거의 없다). fetch와 push 두 줄이 나오는 것은 가져올 때와 올릴 때의 주소를 각각 기억한다는 뜻이고, 보통은 같다.</p>
+<p><strong>3단계. push.</strong> 이제 사진첩을 클라우드로 올린다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>To https://github.com/woochangkang/my-thesis.git
+ * [new branch]      main -&gt; main
+branch 'main' set up to track 'origin/main'.</code></pre>
+</div>
+</div>
+<p><code>* [new branch]</code>는 원격에 <code>main</code>이 새로 생겼다는 뜻이고, 마지막 줄은 앞으로 이 갈래가 원격의 <code>main</code>을 <strong>따라다니게</strong> 되었다는 보고다. <code>-u</code>가 그 연결을 만드는 옵션이라, 다음부터는 <code>git push</code>만 쳐도 어디로 올릴지 Git이 안다.</p>
+<p><strong>4단계. GitHub 화면에서 확인한다.</strong> 브라우저의 저장소 페이지를 새로고침하면 안내 화면이 사라지고 방금 올린 내용이 나타난다. 눈여겨볼 것은 넷이다. ① 파일 목록에 <code>분석.R</code>이 있다. ② 파일 이름 옆에 <strong>그 파일을 마지막으로 건드린 커밋의 메시지</strong>(“정치관심 변수 기술통계 추가”)가 붙어 있다 — GitHub는 파일 목록조차 이력과 함께 보여 준다. ③ 우측 상단의 “2 Commits”를 누르면 커밋 목록이, 각 커밋을 누르면 그 커밋의 diff가 1.2절에서 본 <code>+</code>/<code>−</code> 형태로 나온다. ④ 저장소 이름 옆에 <code>Private</code> 배지가 붙어 있다.</p>
+<div id="fig-github-after-push" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-github-after-push-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../figures/fig1-4_github_repo_after_push.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-github-after-push-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;1.6: 첫 push 직후의 <code>my-thesis</code> 저장소 페이지. 눈여겨볼 넷이 한 화면에 있다 — 저장소 이름 옆의 <code>Private</code> 배지, 파일 목록의 <code>분석.R</code>, 그 오른쪽에 붙은 마지막 커밋 메시지, 그리고 <code>2 Commits</code>. (2026년 8월 캡처. 이 저장소에는 그 뒤로 커밋이 더 쌓였기 때문에, 첫 push 시점의 커밋을 지정해 다시 연 화면이다 — 그래서 왼쪽 위 선택기에 브랜치 이름 <code>main</code> 대신 커밋 해시가 보인다.)
+</figcaption>
+</figure>
+</div>
+<p>이제 리듬이 하나 늘었다. 고친다 → <code>add</code> → <code>commit</code> → <strong><code>push</code></strong>. 두 번째부터의 push는 이런 모습이다(README를 추가해 커밋한 뒤).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 414 bytes | 414.00 KiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/woochangkang/my-thesis.git
+   3a776e9..c7e9f02  main -&gt; main</code></pre>
+</div>
+</div>
+<p>앞의 여섯 줄은 Git이 변경분을 압축해 보내는 과정의 중계방송이라 읽지 않아도 된다. 중요한 것은 마지막 줄 <code>3a776e9..c7e9f02</code>다 — 원격의 <code>main</code>이 어느 커밋에서 어느 커밋으로 전진했는지를 알려 준다. GitHub 페이지를 새로고침하면 <code>README.md</code>가 목록에 추가되어 있고, README 파일이 있으면 GitHub는 그 내용을 파일 목록 아래에 자동으로 펼쳐 보여 준다. 1.4절에서 README를 “저장소의 입구”라 부르는 이유가 여기에 있다 — 남이 이 저장소를 열었을 때 가장 먼저 읽게 되는 문서이기 때문이다.</p>
+<blockquote class="blockquote">
+<p>📦 <strong>박스 1-3. 웹 화면 대신 명령 한 줄: gh</strong></p>
+<p>GitHub는 <code>gh</code>라는 공식 명령줄 도구도 제공한다(cli.github.com). 설치하고 <code>gh auth login</code>으로 한 번 인증해 두면, 위의 1~3단계를 폴더 안에서 한 줄로 끝낼 수 있다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> repo create my-thesis <span class="at">--private</span> <span class="at">--source</span><span class="op">=</span>. <span class="at">--remote</span><span class="op">=</span>origin <span class="at">--push</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<p>웹 브라우저를 열지 않고, 저장소 생성·원격 등록·첫 push가 한 번에 처리된다. 다만 처음 배울 때는 웹 화면을 거치는 편을 권한다 — 무엇이 어디에 만들어지는지 눈으로 보아 두면, 나중에 문제가 생겼을 때 어디를 봐야 할지 안다. 이 도구는 2장에서 AI 에이전트에게 GitHub 작업을 맡길 때 다시 만난다.</p>
+</blockquote>
+</section>
+<section id="브랜치와-pull-request-지도교수-피드백의-구조화" class="level3">
+<h3 class="anchored" data-anchor-id="브랜치와-pull-request-지도교수-피드백의-구조화">1.3.3 브랜치와 Pull Request: 지도교수 피드백의 구조화</h3>
+<p>브랜치(branch)는 사진첩의 갈래다. 본 줄기(main)를 건드리지 않고 실험적 갈래를 내어 작업한 뒤, 결과가 좋으면 본 줄기에 합치고(merge) 나쁘면 갈래째 버린다. 혼자 연구할 때 브랜치가 빛나는 장면은 “될지 안 될지 모르는 큰 변경”이다 — 분석 전략을 갈아엎어 볼 때, 잘 되는 현재 상태를 main에 안전하게 두고 <code>git switch -c robustness-check</code>로 갈래에서 마음껏 부수면 된다.</p>
+<p>협업에서 브랜치는 Pull Request(PR)와 결합해 <strong>검토의 단위</strong>가 된다. 시나리오: 대학원생이 분석 갈래에서 작업해 push하고 PR을 연다. PR 화면에는 main과의 차이가 줄 단위로 표시된다. 지도교수는 바뀐 줄에 직접 코멘트를 단다 — “이 표준오차는 클러스터링이 필요하지 않나?” 학생이 수정 커밋을 올리면 PR이 갱신되고, 승인되면 merge된다. 이메일로 코드 파일을 주고받으며 “제가 보낸 게 최신인가요?”를 반복하던 풍경과 비교해 보라. 무엇이 논의되었고 무엇이 반영되었는지가 전부 기록으로 남는다.</p>
+<p>“PR을 연다”가 실제로 어떤 동작인지 화면 순서대로 따라가 보자. ① 학생이 갈래에서 <code>git push</code>로 커밋을 올린다. ② 저장소의 GitHub 페이지에 들어가면, 방금 올라온 갈래를 감지한 노란 안내 띠와 “Compare &amp; pull request” 버튼이 나타나 있다. ③ 버튼을 누르면 요청서 작성 화면이 열린다. 위쪽에는 어느 갈래를(compare) 어느 줄기로(base) 합치려는 것인지가 표시되고, 제목과 설명 칸에는 검토자가 무엇을 보면 되는지를 적는다 — 예: “표준오차를 시군구 클러스터로 교체. 표 2·3 수치 갱신, 해석 문단 수정”. ④ “Create pull request”를 누르면 요청이 ‘열린(open)’ 상태가 된다. 이때부터 이 PR 페이지가 검토의 장소다: 줄 단위 코멘트, 수정 커밋의 자동 반영, 승인, 병합까지 모든 것이 이 페이지 하나에서 일어나고 기록된다. 요컨대 PR은 “이 갈래를 본 줄기에 합쳐 주십시오”라는 <strong>공개 요청서</strong>이고, 병합 버튼을 누르는 권한을 검토자에게 넘기는 장치다.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-pr-gate" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pr-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-pr-gate">flowchart LR
+    A["갈래에서 작업&lt;br/&gt;(학생 또는 AI 에이전트)"] --&gt; B["push + PR 생성"]
+    B --&gt; C{"검토&lt;br/&gt;줄 단위 코멘트"}
+    C --&gt;|"수정 요청"| D["수정 커밋"]
+    D --&gt; C
+    C --&gt;|"승인"| E["main에 병합"]
+    classDef gate fill:#fff,stroke:#9E1B32,stroke-width:2px
+    classDef ai fill:#fff,stroke:#6B7280,stroke-dasharray:5 4
+    classDef accent fill:#9E1B32,stroke:#9E1B32,color:#fff
+    class C gate
+    class A ai
+    class E accent
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pr-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;1.7: PR 흐름. 검토 게이트를 통과한 변경만 본 줄기에 합쳐진다. 이 구조가 5장 검증 게이트의 원형이다.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>이 책의 관점에서 PR의 진짜 의미는 따로 있다. PR은 <strong>인간 검토 게이트의 제도화</strong>다. 5장에서 우리는 AI의 산출물이 본 줄기에 합쳐지기 전에 검증을 거치게 하는 구조(PEV 루프)를 만드는데, 그 검증 게이트의 가장 자연스러운 구현체가 바로 PR이다. AI 에이전트가 갈래에서 작업하게 하고, 사람이 PR에서 검토·승인하는 흐름 — 지금 배우는 이 협업 관례가 그대로 인간–AI 협업의 골격이 된다.</p>
+</section>
+<section id="병합-갈래는-사라지지-않는다" class="level3">
+<h3 class="anchored" data-anchor-id="병합-갈래는-사라지지-않는다">1.3.4 병합: 갈래는 사라지지 않는다</h3>
+<p>갈래에서 한 작업이 쓸 만하다고 판정되면 본 줄기로 합친다. 이 합류가 병합(merge)이다. PR 화면의 병합 버튼이 하는 일이 바로 이것이고, 혼자 작업할 때는 명령 둘이면 된다: 목적지(main)로 이동한 뒤, 가져올 갈래를 지정한다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch main</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge robustness-check</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<p>실행하면 Git이 병합 결과를 요약해 준다.</p>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>Merge made by the 'ort' strategy.
+ 분석.R | 1 +
+ 1 file changed, 1 insertion(+)</code></pre>
+</div>
+</div>
+<p>병합이 사진첩에 무엇을 만들었는지는 앨범을 그래프로 넘겨 보면 분명하다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--oneline</span> <span class="at">--graph</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>*   e2ab00e Merge branch 'robustness-check'
+|\
+| * 8ea797e 설계효과 점검 추가
+* | 619a900 그림 스크립트 추가
+|/
+* 8a4a211 정치관심 변수 기술통계 추가
+* 3829bf6 가중치 적용 기술통계 추가</code></pre>
+</div>
+</div>
+<p>갈래에서 찍은 사진(<code>8ea797e</code>)이 본 줄기의 역사에 그대로 들어와 있고, 두 줄기가 합류한 지점에 병합 커밋(<code>e2ab00e</code>)이 새로 찍혔다. 병합은 “갈래의 것으로 교체”가 아니라 <strong>두 줄기 변경의 합집합</strong>이다 — main에서 만든 그림 스크립트도, 갈래에서 고친 <code>분석.R</code>도 모두 살아 있다.</p>
+<p>초심자가 가장 자주 하는 걱정을 여기서 풀고 가자. 병합하고 나면 갈래의 내용이 사라지는 것 아닌가? <strong>사라지지 않는다.</strong> 브랜치는 사진 묶음이 아니라 특정 사진에 붙인 <strong>이름표</strong>다. 병합을 마친 갈래의 이름표를 떼어내도,</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">-d</span> robustness-check</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>Deleted branch robustness-check (was 8ea797e).</code></pre>
+</div>
+</div>
+<p>지워진 것은 이름표뿐이다. 앨범을 다시 넘겨 보면 안다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--oneline</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>e2ab00e Merge branch 'robustness-check'
+619a900 그림 스크립트 추가
+8ea797e 설계효과 점검 추가
+8a4a211 정치관심 변수 기술통계 추가
+3829bf6 가중치 적용 기술통계 추가</code></pre>
+</div>
+</div>
+<p>갈래의 내용이 정말 버려지는 경우는 하나뿐이다: 병합하지 <strong>않은</strong> 갈래를 지우는 것. 이때만 그 갈래의 사진들이 본 줄기에 합류하지 못한 채 폐기된다(그래서 Git도 이 경우 <code>-d</code>를 거부하고, 정말 버리겠다는 뜻의 대문자 <code>-D</code>를 요구한다). 이것은 사고가 아니라 브랜치의 존재 이유다 — 1.3.3의 “나쁘면 갈래째 버린다”가 바로 이 동작이다.</p>
+<p><strong>같은 줄을 양쪽에서 고쳤다면: 충돌.</strong> 방금의 병합이 매끄러웠던 것은 두 줄기가 서로 다른 파일을 고쳤기 때문이다. 서로 다른 파일이나 다른 줄이면 Git이 알아서 합쳐 주지만, 같은 줄을 두 줄기가 다르게 고쳤다면 Git은 어느 쪽이 옳은지 판단하지 않고 여러분에게 묻는다. 가중치 변수를 main에서는 <code>wt_trim</code>으로, 갈래(<code>alt-weights</code>)에서는 <code>wt_post</code>로 바꾼 상태에서 병합해 보자.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge alt-weights</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>Auto-merging 분석.R
+CONFLICT (content): Merge conflict in 분석.R
+Automatic merge failed; fix conflicts and then commit the result.</code></pre>
+</div>
+</div>
+<p>경고문에 놀랄 필요 없다. 파일을 열면 Git이 문제의 지점을 정확히 표시해 두었다.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="R 스크립트 — 분석.R (충돌 직후, 앞부분)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">노트</span>R 스크립트 — 분석.R (충돌 직후, 앞부분)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code># 가중 기술통계
+library(survey)
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+des &lt;- svydesign(ids = ~1, weights = ~wt_trim, data = df)
+=======
+des &lt;- svydesign(ids = ~1, weights = ~wt_post, data = df)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; alt-weights</code></pre>
+</div>
+</div>
+<p><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>와 <code>=======</code> 사이가 현재 줄기(main)의 버전, <code>=======</code>와 <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> 사이가 가져오려는 갈래의 버전이다. 해소 절차는 기계적이다. ① 파일을 열어 남길 내용으로 정리하고 세 표식 줄을 지운다 — 한쪽을 고르든 둘을 조합하든, 이것은 Git이 아니라 여러분의 연구적 판단이다. ② <code>git add 분석.R</code>로 정리가 끝났음을 알리고, ③ <code>git commit</code>으로 병합을 마무리한다.</p>
+<p>길을 잃었을 때는 언제나처럼 <code>git status</code>가 안내판이다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>On branch main
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add &lt;file&gt;..." to mark resolution)
+    both modified:   분석.R</code></pre>
+</div>
+</div>
+<p>출력 셋째 줄이 알려 주듯, 당황스러우면 <code>git merge --abort</code>로 병합 시도 전 상태로 안전하게 되돌아갈 수도 있다. 충돌은 Git의 고장이 아니라 <strong>의견 불일치의 정직한 보고</strong>다. 공동연구자와 — 그리고 2장부터는 AI 에이전트와 — 같은 저장소에서 일하게 되면, 이 보고를 읽고 판정하는 일이 여러분의 몫이 된다.</p>
+</section>
+<section id="issues-연구-노트의-공공화" class="level3">
+<h3 class="anchored" data-anchor-id="issues-연구-노트의-공공화">1.3.5 Issues: 연구 노트의 공공화</h3>
+<p>GitHub 저장소에는 Issues라는 게시판이 붙어 있다. 원래 버그 신고용이지만, 연구에서는 <strong>미결 사항 관리 대장</strong>으로 쓰면 좋다. “결측 처리 방식 재검토 필요”, “심사평 2번: 강건성 검증 추가” — 각 항목이 번호를 갖고, 논의가 달리고, 해결되면 닫힌다. 커밋 메시지에 <code>#12</code>처럼 번호를 적으면 해당 이슈와 커밋이 자동으로 연결된다. “이 변경이 어떤 문제를 해결한 것인가”의 추적이 공짜로 따라온다.</p>
+<blockquote class="blockquote">
+<p>📦 <strong>박스 1-4. 절대 규칙: 민감한 데이터는 올리지 않는다</strong></p>
+<p>GitHub에 올라간 것은 공개 저장소라면 전 세계에, 비공개 저장소라도 접근 권한자 전원에게 보인다. 그리고 Git의 본성상 <strong>한 번 커밋된 것은 삭제해도 이력에 남는다.</strong> 설문 응답 원자료, 인터뷰 전사, 주민 식별 정보, API 키 — 이런 파일은 처음부터 커밋 대상에서 제외해야 한다.</p>
+<p>도구는 <code>.gitignore</code> 파일이다. 저장소 최상위에 이 이름의 텍스트 파일을 만들고 제외 패턴을 적는다.</p>
+<pre><code>data-raw/          # 원자료 폴더 전체
+*.sav              # 설문 원본 파일
+.env               # API 키</code></pre>
+<p><code>.gitignore</code>는 <strong>프로젝트를 시작하는 순간, 첫 커밋 이전에</strong> 만든다. 데이터를 이미 커밋한 뒤에 지우는 것은 전문가에게도 성가신 작업이며, 공개 저장소였다면 유출은 이미 일어난 것이다. 연습 문제로도 이 순서를 강제할 것이다. 참고로 재현 자료 공개 의무와 개인정보 보호가 충돌하는 상황 — 코드는 공개하되 원자료는 접근 절차를 안내하는 방식 등 — 은 8장에서 정면으로 다룬다.</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="연구-프로젝트의-폴더-구조" class="level2">
+<h2 class="anchored" data-anchor-id="연구-프로젝트의-폴더-구조">1.4 연구 프로젝트의 폴더 구조</h2>
+<p>버전 관리는 무엇을 관리하느냐가 정해져야 힘을 발휘한다. 이 절은 그 ‘무엇’ — 프로젝트의 물리적 조직 — 을 다룬다. 정답이 하나는 아니지만, 다음 구조는 계량 사회과학에서 널리 통용되는 관례의 최대공약수다.</p>
+<pre><code>my-thesis/
+├── README.md          # 프로젝트 안내: 무엇을, 어떻게 재실행하는가
+├── .gitignore         # 커밋 제외 목록 (박스 1-4)
+├── data-raw/          # 원자료: 읽기 전용, git 제외
+├── data/              # 가공 데이터: 스크립트가 생성
+├── R/                 # 분석 스크립트
+│   ├── 01_clean.R
+│   ├── 02_describe.R
+│   └── 03_models.R
+├── output/            # 표·그림: 스크립트가 생성
+└── docs/              # 원고, 코드북, 메모</code></pre>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-folder-principles" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-folder-principles-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-folder-principles">flowchart LR
+    A["data-raw/&lt;br/&gt;원자료&lt;br/&gt;읽기 전용 · git 제외"] --&gt;|"읽기만"| S["R/&lt;br/&gt;01_clean.R&lt;br/&gt;02_describe.R&lt;br/&gt;03_models.R"]
+    S --&gt;|생성| B["data/&lt;br/&gt;가공 데이터"]
+    S --&gt;|생성| C["output/&lt;br/&gt;표 · 그림"]
+    R2["README.md&lt;br/&gt;입구: 재실행 절차"] -.-&gt;|안내| S
+    T["폴더 삭제 검사:&lt;br/&gt;data/와 output/을 지워도&lt;br/&gt;스크립트로 복원되는가?"] -.-&gt; B
+    T -.-&gt; C
+    classDef fixed fill:#E5E7EB,stroke:#6B7280
+    classDef gate fill:#fff,stroke:#9E1B32,stroke-width:2px
+    class A fixed
+    class T gate
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-folder-principles-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;1.8: 재현가능한 프로젝트의 물질 대사: 원자료는 읽기 전용이고, 모든 가공물은 스크립트의 산출물이다.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>구조 자체보다 중요한 것은 구조에 깔린 세 가지 원칙이다.</p>
+<p><strong>원칙 1. 원자료는 읽기 전용이다.</strong> <code>data-raw/</code>에 들어간 파일은 다시는 손대지 않는다. 엑셀에서 열어 셀 하나를 “잠깐” 고치는 순간, 그 변경은 어디에도 기록되지 않은 채 모든 후속 분석에 스며든다. 원자료의 오류조차 손으로 고치지 않는다 — 고치는 코드를 <code>01_clean.R</code>에 쓴다. 그래야 “무엇을 왜 고쳤는지”가 스크립트에 남는다. 이 원칙은 이 책에서 계속 다시 나타난다. 3장의 survey-eda 스킬 제1원칙(“원자료 파일은 절대 수정하지 않는다”)이 바로 이것이고, 2장에서 AI 에이전트에게 <code>data-raw/</code>를 읽기 전용 권한으로 설정하는 것이 이것의 기술적 강제다.</p>
+<p><strong>원칙 2. 모든 가공물은 스크립트의 산출물이다.</strong> <code>data/</code>와 <code>output/</code>의 파일은 전부 <code>R/</code>의 스크립트가 생성한 것이어야 한다. 검사법은 단순하다: 두 폴더를 통째로 지우고 스크립트를 번호 순서대로 실행했을 때 모든 것이 되살아나는가? 이 검사를 통과하는 프로젝트가 재현가능한 프로젝트다. 번호 접두사(01_, 02_)는 실행 순서를 폴더 목록 자체가 문서화하게 만드는 값싸고 효과적인 관례다.</p>
+<p><strong>원칙 3. README가 입구다.</strong> 저장소를 처음 연 사람(6개월 뒤의 나를 포함)이 읽을 첫 문서. 최소 내용: 프로젝트 한 줄 소개, 데이터 출처와 접근 방법, 필요한 패키지, 그리고 <strong>재실행 절차</strong>(“R/ 스크립트를 번호 순으로 실행”). 여기에 데이터의 변수 사전(codebook)을 <code>docs/</code>에 두면 — 변수명, 라벨, 값의 의미, 결측 코딩 — 3장에서 본 “함정 목록”의 데이터판이 된다. 사실 코드북 없는 데이터가 바로 함정의 온상이다.</p>
+<p>💻 <strong>따라 하기</strong>: 자신의 진행 중인 프로젝트를 이 구조로 재조직해 보라. 아마 가장 어려운 부분은 “이 파일이 원자료였나 가공물이었나”를 판정하는 일일 텐데, 그 어려움 자체가 지금까지의 작업 방식에 대한 진단이다.</p>
+<hr>
+</section>
+<section id="quarto와-자동화-파이프라인" class="level2">
+<h2 class="anchored" data-anchor-id="quarto와-자동화-파이프라인">1.5 Quarto와 자동화 파이프라인</h2>
+<p>잠깐 — Git을 배우는 장에서 왜 갑자기 문서 도구가 나오는가? 이 장의 주제는 줄곧 하나였다: 연구를 <strong>추적 가능한 기록</strong>으로 만드는 것. 커밋으로 분석의 이력을 남겼고(1.2), 원격 저장소로 그 기록을 공유했으며(1.3), 폴더 구조로 기록의 대상을 정돈했다(1.4). 그런데 아직 추적 바깥에 남은 것이 하나 있다. <strong>논문 원고 속의 숫자들</strong>이다. 분석 코드는 Git이 추적하지만, 결과를 워드 문서에 손으로 옮겨 적는 순간 코드와 숫자의 연결은 끊긴다 — 표 3의 수치가 어느 커밋의 분석에서 나왔는지 아무도 답할 수 없게 된다. Quarto는 이 마지막 틈새를 닫아 코드→결과→원고 전체를 하나의 추적 가능한 파일로 만들고(1.5.1), GitHub Actions는 커밋할 때마다 그 파일이 남의 컴퓨터에서도 재현되는지 자동으로 검사한다(1.5.2). 요컨대 이 절은 Git과 별개의 도구 소개가 아니라, <strong>커밋 단위의 추적과 검사를 원고에까지 확장하는 마지막 조각</strong>이다.</p>
+<section id="코드와-서술을-한-문서에" class="level3">
+<h3 class="anchored" data-anchor-id="코드와-서술을-한-문서에">1.5.1 코드와 서술을 한 문서에</h3>
+<p>전통적 작업 흐름에서 분석과 글은 분리되어 있다. R에서 표를 만들고, 워드에 붙여 넣고, 수치를 본문에 옮겨 적는다. 이 복사–붙여넣기의 틈새가 오류의 서식지다. 분석을 고치면 표 열두 개와 본문 수치 서른 곳을 손으로 갱신해야 하고, 하나쯤은 반드시 빠뜨린다.</p>
+<p>Quarto는 이 틈새를 없앤다. <code>.qmd</code> 문서 안에 서술(마크다운)과 코드(R/Python 청크)가 공존하고, 렌더링하면 코드가 실행되어 표·그림·수치가 본문에 박힌 HTML·PDF·워드 문서가 나온다. 데이터가 바뀌면? 다시 렌더링하면 모든 수치가 일괄 갱신된다. 본문 속 숫자도 <code>`r round(coef, 2)`</code> 처럼 인라인 코드로 넣으면 복사–붙여넣기가 원천적으로 사라진다.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="Quarto 문서 — 설문_예비분석.qmd">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">노트</span>Quarto 문서 — 설문_예비분석.qmd
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "설문 예비분석"</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> html</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>응답자는 총 <span class="in">`r nrow(df)`</span>명이었다. 정치신뢰 척도의</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>신뢰도는 α = <span class="in">`r res$alpha`</span>로 수용 가능한 수준이었다.</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">w_desc_cont</span>(df, vars, <span class="at">wt =</span> <span class="st">"wt"</span>))</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<p>낯익은 형식일 것이다 — 3장의 survey-eda 스킬이 생성하는 보고서가 바로 이 Quarto 문서였다. 그 보고서 말미의 ‘분석 로그’ 절이 가능했던 것도, 문서가 자신을 생성한 코드와 한 몸이기 때문이다.</p>
+</section>
+<section id="github-actions-커밋하면-배포된다" class="level3">
+<h3 class="anchored" data-anchor-id="github-actions-커밋하면-배포된다">1.5.2 GitHub Actions: 커밋하면 배포된다</h3>
+<p>마지막 조각은 자동화다. GitHub Actions는 저장소에 특정 사건(예: main에 push)이 일어나면 지정된 작업을 클라우드에서 자동 실행하는 장치다. 대표적 활용이 <strong>Quarto 사이트 자동 배포</strong>: 분석을 고쳐 커밋하면, GitHub가 알아서 문서를 렌더링해 웹사이트(GitHub Pages)로 게시한다. 연구자는 push만 하고, 공저자와 세상은 항상 최신 결과를 URL로 본다.</p>
+<p>설정은 저장소에 워크플로 파일 하나를 두는 것으로 끝난다(전문은 책 저장소 <code>ch01/</code>에; Quarto 공식 문서의 표준 예제를 그대로 쓰면 된다). 여기서 개념만 가져가자: <strong>커밋이 곧 배포 단위가 되는 순간, “내 컴퓨터에서는 되는데”라는 변명이 사라진다.</strong> 클라우드의 깨끗한 컴퓨터에서 렌더링이 성공했다는 것 자체가 재현가능성의 상시 검사이기 때문이다. 렌더링이 실패하면 이메일이 온다 — 여러분의 프로젝트에 무료 검사원이 상주하는 셈이다.</p>
+<p>백문이 불여일견 — 아래는 곧 해부할 GESIS 워크숍 저장소의 실제 첫 화면이다. 박스 1-5를 읽을 때 이 화면을 곁에 두고 대조해 보라.</p>
+<div id="fig-gesis-repo" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gesis-repo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../figures/fig1-5_gesis_repo.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gesis-repo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;1.9: GESIS 워크숍 저장소의 첫 화면(2026년 8월 캡처). 목적별 폴더(<code>content/</code>, <code>data/</code>, <code>exercises/</code>, <code>slides/</code>, <code>solutions/</code>)와 <code>.gitignore</code>, <code>CITATION.cff</code>, <code>session_info.txt</code>가 첫눈에 들어온다 — 박스 1-5에서 항목별로 해부한다.
+</figcaption>
+</figure>
+</div>
+<blockquote class="blockquote">
+<p>📦 <strong>박스 1-5. 사례 해부: 가르치는 대로 사는 저장소 — GESIS 재현가능 연구 워크숍</strong></p>
+<p>이 장의 도구들이 실제로 어떻게 결합되는지 보여 주는 훌륭한 실물이 있다. 독일 GESIS 라이프니츠 사회과학연구소의 워크숍 “Workflows for Reproducible Research with R &amp; Git”(Johannes Breuer, Bernd Weiß, Arnim Bleier)의 공개 저장소다(github.com/jobreu/reproducible-research-gesis-2023, CC-BY 4.0). 계량 사회과학자를 위한 이틀짜리 재현가능성 강좌인데, 이 저장소가 교재로서 특별한 이유는 <strong>저장소 자신이 가르치는 내용을 그대로 실천하고 있다</strong>는 점이다. 최상위 파일 목록을 읽는 것만으로 이 장의 복습이 된다.</p>
+<ul>
+<li><code>content/</code>, <code>data/</code>, <code>exercises/</code>, <code>slides/</code>, <code>solutions/</code> — 목적별 폴더 분리(1.4의 원칙). 폴더 이름만으로 무엇이 어디 있는지 안다.</li>
+<li><code>.gitignore</code> — 커밋 제외 목록이 첫 화면에 보인다(박스 1-4).</li>
+<li><code>README.md</code> — 강사·일정·자료 링크·선수 지식까지, 입구 문서의 모범(원칙 3).</li>
+<li><code>session_info.txt</code> — 자료를 만들 때 사용한 R 버전과 패키지 목록의 기록. “당신 컴퓨터의 환경”까지 재현 대상이라는 다음 단계 주제(의존성 관리)의 예고편이다.</li>
+<li><code>CITATION.cff</code> — 저장소 인용 방법의 명시. 코드와 자료도 인용되는 학술 산출물이라는 선언이다.</li>
+<li>그리고 슬라이드 주소(jobreu.github.io/…)를 보라 — 워크숍 슬라이드 자체가 이 절에서 배운 GitHub Pages로 배포되고 있다. 커밋하면 갱신되는 강의 자료다.</li>
+</ul>
+<p>이 워크숍이 우리 책과 특히 잘 맞는 지점이 하나 더 있다. 실습 안내문에 이런 경고가 반복해서 나온다: <em>실제 연구 데이터는 절대 GitHub에 올리지 말 것 — 워크숍 데이터는 합성 자료이지만, 그래도 올리지 않는 습관을 들이라.</em> 박스 1-4에서 세운 규칙이 개인 취향이 아니라 유럽 사회과학 데이터 기관의 공식 교육 내용임을 확인할 수 있다. 아래 1.5.3에서 이 워크숍의 실습을 우리 맥락에 맞게 따라가 본다.</p>
+</blockquote>
+</section>
+<section id="실전-예제-gesis-워크숍-실습-따라가기" class="level3">
+<h3 class="anchored" data-anchor-id="실전-예제-gesis-워크숍-실습-따라가기">1.5.3 실전 예제: GESIS 워크숍 실습 따라가기</h3>
+<p>GESIS 워크숍의 Git 실습(Exercise: Git &amp; RStudio)은 이 장에서 배운 사이클 전체를 40분 안에 한 바퀴 돌게 설계되어 있다. 원 실습은 RStudio의 Git 패널을 사용하는데, 여기서는 같은 흐름을 우리 책의 도구 순서에 맞게 재구성한다. GUI로 하고 싶다면 원 실습 문서(저장소의 <code>exercises/</code> 폴더)를 그대로 따라도 좋다 — 도착점은 같다.</p>
+<p><strong>0단계. 재료 준비.</strong> 워크숍 저장소를 clone해서 구경하는 것으로 시작한다. 남의 잘 만든 저장소를 열어 보는 것은 공짜 과외다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/jobreu/reproducible-research-gesis-2023.git</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>Cloning into 'reproducible-research-gesis-2023'...
+remote: Enumerating objects: 594, done.
+remote: Counting objects: 100% (79/79), done.
+remote: Compressing objects: 100% (53/53), done.
+remote: Total 594 (delta 44), reused 47 (delta 26), pack-reused 515
+Receiving objects: 100% (594/594), 94.55 MiB | 10.66 MiB/s, done.
+Resolving deltas: 100% (314/314), done.</code></pre>
+</div>
+</div>
+<p>받은 것은 최신 파일들만이 아니다. <code>Total 594</code>는 이 저장소의 <strong>모든 커밋과 모든 버전의 파일</strong>을 통째로 가져왔다는 뜻이다(슬라이드 PDF가 여럿이라 내려받는 데 100MB 가까이 든다 — 용량이 부담되면 최근 이력만 받는 <code>--depth 1</code> 옵션이 있다). 사진첩의 복제란 이런 것이다. 이제 그 이력을 넘겨 보자.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> reproducible-research-gesis-2023</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--oneline</span> <span class="kw">|</span> <span class="fu">head</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>06eee83 remove stackdump
+58ca7a6 add new pdf version of dep management slides
+9a2d27c add new pdf version of dep management slides
+28cb475 add minor fixes
+514ba2f Update dependency management materials
+9878c7a add new html and pdf versions of git intro and dep management slides
+763ae4c Merge branch 'main' of https://github.com/jobreu/reproducible-research-gesis-2023
+f92d200 fix missing quot marks in git intro slides
+88cc5c1 fix typo in slides
+23256a7 update binder slides</code></pre>
+</div>
+</div>
+<p>여기 보이는 것이 바로 1.2.1의 ’사진첩’이다 — 교재가 만들어져 온 과정이 커밋 단위로 남아 있다. “슬라이드 오타 수정”, “따옴표 누락 수정” 같은 사소한 커밋까지 있다는 점을 눈여겨보라. 완벽한 순간에만 커밋하는 것이 아니다. 일곱 번째 줄의 <code>Merge branch 'main'</code>은 1.3.4에서 배운 병합의 흔적이다 — 저자 두 사람이 각자의 컴퓨터에서 작업한 것이 합류한 지점이다.</p>
+<p>무엇을 커밋에서 제외했는지도 확인해 두자.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-12</span> .gitignore</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code># History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+
+# User-specific files
+.Ruserdata
+
+# Example code in package build process
+*-Ex.R</code></pre>
+</div>
+</div>
+<p>R 작업에서 자동 생성되는 파일들이다. 남의 <code>.gitignore</code>를 읽는 것은 그 분야의 관례를 배우는 값싼 방법이고, 여러분의 첫 <code>.gitignore</code>도 이런 목록에서 출발하면 된다.</p>
+<p><strong>1단계. 내 실습 저장소 만들기.</strong> 이제 내 것을 만든다. 워크숍 실습 1에 해당한다. 1.3.2에서는 “로컬 폴더를 먼저 만들고 GitHub에 올리는” 경로를 밟았으니, 여기서는 반대 경로 — GitHub에서 먼저 만들고 clone하는 방식 — 을 해 보자. 1.3.2와 똑같이 하되 이번에는 이름만 <code>reproducibility-practice</code>로 하고, 만든 직후 clone한다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/<span class="op">&lt;</span>내계정<span class="op">&gt;</span>/reproducibility-practice.git</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>Cloning into 'reproducibility-practice'...
+warning: You appear to have cloned an empty repository.</code></pre>
+</div>
+</div>
+<p>경고처럼 보이지만 정상이다. 아직 커밋이 하나도 없는 빈 저장소를 받았다는 안내일 뿐이며, 오히려 1.3.2에서 강조한 “초기화 항목을 체크하지 않았다”는 확인이 된다. 이제 1.4의 골격을 세운다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> reproducibility-practice</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> data-raw data R output docs</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"data-raw/"</span> <span class="op">&gt;</span> .gitignore        <span class="co"># 첫 커밋 전에! (박스 1-4)</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>2단계. 분석 스크립트 추가와 첫 사이클.</strong> 워크숍은 <code>demo_script.R</code>을 제공하지만, 우리는 우리 재료를 쓴다. 실습 저장소의 연습 설문 자료(<code>practice_survey.csv</code> — 300명 규모의 합성 자료다)를 <code>data-raw/</code>에 복사하고, 성별 분포표를 만드는 세 줄짜리 스크립트를 <code>R/01_describe.R</code>로 저장한다.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="R 스크립트 — R/01_describe.R">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">노트</span>R 스크립트 — R/01_describe.R
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data-raw/practice_survey.csv"</span>)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> <span class="fu">table</span>(df<span class="sc">$</span>gender)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">as.data.frame</span>(tab), <span class="st">"output/gender_dist.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<p>터미널에서 실행해 보면 <code>output/</code>에 결과 파일이 생긴다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> R/01_describe.R</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> output/gender_dist.csv</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>"Var1","Freq"
+"남성",143
+"여성",157</code></pre>
+</div>
+</div>
+<p>1.4의 원칙 2가 지금 막 실행된 것이다 — <code>output/</code>의 파일은 손으로 만든 것이 아니라 <code>R/</code>의 스크립트가 만들었다. 이제 이 작업을 사진첩에 기록하자. 그 전에 무엇이 새로 생겼는지 확인한다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>On branch main
+
+No commits yet
+
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+    .gitignore
+    R/
+    output/
+
+nothing added to commit but untracked files present (use "git add" to track)</code></pre>
+</div>
+</div>
+<p>이 출력에서 <strong>없는 것 두 가지</strong>가 있는 것들만큼 중요하다. 첫째, <code>data-raw/</code>가 목록에 없다. <code>.gitignore</code>가 제 일을 하고 있다는 뜻이다. 만약 여기에 CSV 파일이 보인다면 <code>.gitignore</code>를 커밋보다 늦게 만들었다는 신호이니 지금 바로잡아야 한다 — 워크숍이 실습 내내 반복하는 점검이 이것이다. 둘째, 방금 만든 <code>data/</code>와 <code>docs/</code>도 없다. Git은 <strong>파일</strong>을 추적하지 정보 없는 빈 폴더는 추적하지 않기 때문이다(놀랄 일이 아니라 사양이다. 빈 폴더를 꼭 남겨야 하면 그 안에 <code>.gitkeep</code> 같은 빈 파일을 하나 두는 관례가 있다).</p>
+<p>README에 재실행 절차를 적어 둔 뒤 첫 커밋을 찍는다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add R/01_describe.R .gitignore README.md</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"성별 분포 기술통계 스크립트 추가"</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>[main (root-commit) 92f6577] 성별 분포 기술통계 스크립트 추가
+ 3 files changed, 11 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 R/01_describe.R
+ create mode 100644 README.md</code></pre>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>To https://github.com/woochangkang/reproducibility-practice.git
+ * [new branch]      main -&gt; main
+branch 'main' set up to track 'origin/main'.</code></pre>
+</div>
+</div>
+<p>clone으로 받은 저장소는 <code>origin</code>이 이미 등록되어 있어 1.3.2의 <code>git remote add</code> 단계가 필요 없었다는 점도 확인해 두자.</p>
+<p><strong>3단계. 원격에서의 변경과 pull.</strong> 워크숍 실습 5가 가르치는 것은 push의 역방향이다. GitHub 웹사이트에서 <code>README.md</code>를 열고 연필 아이콘을 눌러 한 줄(“담당: 홍길동 (2026-08 실습)”)을 추가한 뒤 웹에서 바로 커밋한다. 이제 원격에는 있고 내 컴퓨터에는 없는 커밋이 하나 생겼다. 로컬로 돌아와 가져온다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb58"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>From https://github.com/woochangkang/reproducibility-practice
+   92f6577..7d8a05a  main       -&gt; origin/main
+Updating 92f6577..7d8a05a
+Fast-forward
+ README.md | 2 ++
+ 1 file changed, 2 insertions(+)</code></pre>
+</div>
+</div>
+<p><code>Fast-forward</code>는 “내 쪽에는 새 커밋이 없어서, 원격의 커밋을 그대로 이어 붙이면 끝났다”는 뜻이다. 양쪽 모두에 새 커밋이 있었다면 1.3.4에서 본 병합이 일어났을 것이고, 같은 줄을 고쳤다면 충돌이 났을 것이다. 파일을 열어 보면 웹에서의 수정이 도착해 있다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb60"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> README.md</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled" title="실행 결과">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">힌트</span>실행 결과
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code># 재현가능성 실습
+
+연습용 설문 자료의 기술통계.
+
+담당: 홍길동 (2026-08 실습)
+
+## 재실행 절차
+1. `data-raw/practice_survey.csv`를 준비한다
+2. `R/01_describe.R`를 실행하면 `output/gender_dist.csv`가 생성된다</code></pre>
+</div>
+</div>
+<p>사소해 보이지만 이 실습의 교훈은 크다. 저장소는 이제 두 곳(로컬·원격)에 존재하고, <strong>어느 쪽의 변경이든 pull/push로 합류한다</strong>. 공동연구자의 커밋이 도착하는 경로도, 2장 이후 AI 에이전트가 다른 세션에서 만든 커밋이 도착하는 경로도 정확히 이것이다.</p>
+<p><strong>4단계(선택). 한 걸음 더 — 환경의 재현.</strong> 워크숍 둘째 날은 이 장이 다루지 않는 다음 주제로 나아간다: 코드와 데이터가 같아도 <strong>패키지 버전이 다르면</strong> 결과가 달라질 수 있다는 문제(의존성 관리, renv), 그리고 아예 분석 환경 전체를 클릭 한 번으로 브라우저에서 재현하게 하는 Binder. 석사논문 단계에서 당장 필수는 아니지만, <code>sessionInfo()</code> 출력을 저장소에 남기는 것(워크숍 저장소의 <code>session_info.txt</code>가 그 실물이다)만은 지금부터 습관으로 삼을 만하다. 비용은 코드 한 줄, 효용은 “그때 어떤 버전으로 돌렸는가”라는 미래 질문에 대한 보험이다.</p>
+<hr>
+</section>
+</section>
+<section id="실습-과제" class="level2">
+<h2 class="anchored" data-anchor-id="실습-과제">1.6 실습 과제</h2>
+<ol type="1">
+<li><strong>Replication 패키지 재현.</strong> Harvard Dataverse에서 관심 분야의 정치학 replication 패키지를 하나 골라 clone(또는 다운로드 후 <code>git init</code>)하고, README를 따라 분석을 재실행하라. 결과가 논문과 일치하는가? 불일치나 실행 오류가 있으면 무엇이 문제였는지 Issue로 기록하라(패키지 저자에게 보내라는 뜻이 아니라, 자신의 저장소에 기록하라는 뜻이다). 이 경험은 “재현 가능한 패키지를 만든다는 것”의 기준을 몸에 새겨 준다.</li>
+<li><strong>내 프로젝트의 이주.</strong> 진행 중인 연구 하나를 1.4의 구조로 재조직하라. 순서를 지켜라: ① <code>.gitignore</code> 작성(민감 파일 확인) → ② <code>git init</code> → ③ 첫 커밋 → ④ GitHub 비공개 저장소로 push. README에는 재실행 절차를 반드시 포함하라.</li>
+<li><strong>“폴더 삭제” 검사.</strong> 과제 2의 프로젝트에서 <code>data/</code>와 <code>output/</code>을 지우고 스크립트만으로 복원해 보라. 실패한 지점이 바로 여러분 프로젝트의 재현 불가능 지점이다. 고치고, 고친 내용을 의미 있는 커밋 메시지로 남겨라.</li>
+<li><strong>(심화) Quarto 배포.</strong> 간단한 분석 문서 하나를 Quarto로 작성하고 GitHub Pages로 배포하라. 데이터를 일부 수정한 뒤 커밋 한 번으로 사이트의 모든 수치가 갱신되는 것을 확인하라.</li>
+</ol>
+</section>
+<section id="이-장의-체크리스트" class="level2">
+<h2 class="anchored" data-anchor-id="이-장의-체크리스트">이 장의 체크리스트</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">원자료(<code>data-raw/</code>)는 읽기 전용이며 git에서 제외되어 있다</label></li>
+<li><label><input type="checkbox"><code>.gitignore</code>가 첫 커밋 이전에 작성되었다</label></li>
+<li><label><input type="checkbox">가공 데이터와 산출물을 지워도 스크립트로 복원된다</label></li>
+<li><label><input type="checkbox">README만 읽고 제3자가 재실행할 수 있다</label></li>
+<li><label><input type="checkbox">커밋이 의미 있는 작업 단위이고, 메시지가 “수정2”가 아니다</label></li>
+<li><label><input type="checkbox">본문 수치가 복사–붙여넣기가 아니라 인라인 코드다</label></li>
+</ul>
+</section>
+<section id="더-읽을거리" class="level2">
+<h2 class="anchored" data-anchor-id="더-읽을거리">더 읽을거리</h2>
+<p>(웹 자료의 주소는 2026년 8월에 접속을 확인했다.)</p>
+<ul>
+<li>Broockman, D., Kalla, J. &amp; Aronow, P. (2015). “Irregularities in LaCour (2014).” <a href="https://osf.io/preprints/metaarxiv/qy2se/" class="uri">https://osf.io/preprints/metaarxiv/qy2se/</a> — 1.1.1의 LaCour 사건에서 부정이 드러난 경위를, 이를 발견한 연구자들이 직접 정리한 보고서. 공개된 자료를 남이 다시 들여다보는 일이 실제로 어떻게 검증 장치로 작동했는지 보여 주는 일차 자료다</li>
+<li>Breuer, J., Weiß, B. &amp; Bleier, A. (2023). <em>Workflows for Reproducible Research with R &amp; Git</em> (GESIS 워크숍, CC-BY 4.0). <a href="https://github.com/jobreu/reproducible-research-gesis-2023" class="uri">https://github.com/jobreu/reproducible-research-gesis-2023</a> — 박스 1-5와 1.5.3의 재료. 슬라이드·실습·해답이 모두 공개되어 있다. 이 장을 마친 뒤 특히 둘째 날 자료(의존성 관리, Binder, 계산 환경 보존)가 자연스러운 다음 걸음이다</li>
+<li>Software Carpentry. “Version Control with Git.” <a href="https://swcarpentry.github.io/git-novice/" class="uri">https://swcarpentry.github.io/git-novice/</a> — 명령어를 손에 익히는 표준 입문 레슨</li>
+<li>Bryan, J. <em>Happy Git and GitHub for the useR</em>. <a href="https://happygitwithr.com" class="uri">https://happygitwithr.com</a> — R 사용자 관점의 Git 안내서. 특히 문제 상황 해결(“도움! 꼬였어요”) 장이 유용하다</li>
+<li>Quarto. “Publishing: GitHub Pages.” <a href="https://quarto.org/docs/publishing/github-pages.html" class="uri">https://quarto.org/docs/publishing/github-pages.html</a> — 1.5.2에서 개념만 다룬 자동 배포의 공식 안내</li>
+<li>자기 분야 주요 학술지의 데이터 정책 페이지 — 지금 확인해 두라. 8장에서 다시 만난다</li>
+</ul>
+<p><em>다음 장 예고: 이제 프로젝트가 추적 가능한 상태가 되었으니, 그 위에 AI를 들일 차례다. 2장에서는 터미널과 CLI 에이전트의 기본기, 그리고 에이전트가 매 작업에서 참조할 정보 환경 — CLAUDE.md — 를 설계한다. 이 장에서 만든 폴더 구조와 읽기 전용 원칙이 그대로 에이전트의 행동 규칙이 되는 것을 보게 될 것이다.</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "복사완료!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "복사완료!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/00-intro.html" class="pagination-link" aria-label="서장. 왜 지금 AI인가 — 이 책의 사용법">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">서장. 왜 지금 AI인가 — 이 책의 사용법</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/02-cli.html" class="pagination-link" aria-label="2장. CLI와 컨텍스트 엔지니어링">
+        <span class="nav-page-text"><span class="chapter-title">2장. CLI와 컨텍스트 엔지니어링</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

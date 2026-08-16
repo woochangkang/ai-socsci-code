@@ -1,0 +1,34 @@
+/* 모든 callout 박스(실행 결과·학습 목표 등)의 안쪽 여백.
+   제목 띠와 내용 사이는 Quarto 기본값보다 좁게, 대신 위아래를 대칭으로 두어
+   내용이 박스 선에 붙지 않게 한다. */
+.callout.callout-titled > .callout-header {
+  margin-bottom: 0;
+}
+.callout.callout-style-default .callout-body-container {
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+.callout.callout-style-default .callout-body > :first-child {
+  padding-top: 0;
+  margin-top: 0;
+}
+.callout.callout-titled .callout-body > :last-child:not(.sourceCode),
+.callout.callout-titled .callout-body > div > :last-child:not(.sourceCode) {
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+.callout.callout-style-default .callout-body pre,
+.callout.callout-style-default .callout-body div.sourceCode {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* 실행 결과·에이전트 응답 박스의 내용은 언어 표시가 없는 민무늬 블록이라
+   _quarto.yml 의 code-overflow: wrap 이 닿지 않는다(그 설정은 하이라이팅되는
+   div.sourceCode 전용). 그대로 두면 긴 줄이 경고 없이 잘려 나가므로,
+   가로 스크롤을 주어 잘린 내용을 독자가 볼 수 있게 한다.
+   ※ 인쇄·PDF에는 스크롤이 없다. 지면 폭을 넘는 출력은 본문에서 줄이고
+      줄였다는 사실을 밝힌다(1장의 "경로 앞부분은 지면에 맞게 줄였다" 규약). */
+.callout.callout-style-default .callout-body pre:not(.sourceCode) {
+  overflow-x: auto;
+}

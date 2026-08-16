@@ -18,6 +18,10 @@
 | 7장 | `ch07-annotation/` | 합성 소표본 — **본문 실측과 별개** |
 | — | `templates/` | 공개 진술·CLAUDE·점검표 |
 
+## 웹 문서
+- Site: <https://woochangkang.github.io/ai-socsci-code/>
+- 책 HTML 미리보기: <https://woochangkang.github.io/ai-socsci-code/book/>
+
 ## 시작
 ```bash
 git clone https://github.com/woochangkang/ai-socsci-code.git
@@ -32,3 +36,9 @@ cd ai-socsci-code
 
 ## 라이선스
 코드·합성 데이터: MIT (`LICENSE`). 제3자 자료는 각 파일 고지.
+
+## 사이트 소스
+- `scripts/build_pages_site.py` — Pages 정적 사이트 생성
+- `site/book/` — 핵심편 Quarto HTML 번들(원고 저장소 `_book` 동기본)
+- `.github/workflows/pages.yml` — GitHub Pages 배포
+

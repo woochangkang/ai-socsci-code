@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>5장. Harness Engineering — AI를 신뢰 가능하게 만드는 구조 – AI를 이용한 사회과학 연구</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/06-rag.html" rel="next">
+<link href="../chapters/04-agent.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-9ece03dab9959ef5c886c0d317450186.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "일치 없음",
+    "search-matching-documents-text": "일치된 문서",
+    "search-copy-link-title": "검색 링크 복사",
+    "search-hide-matches-text": "추가 검색 결과 숨기기",
+    "search-more-match-text": "추가 검색결과",
+    "search-more-matches-text": "추가 검색결과",
+    "search-clear-button-title": "제거",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "취소",
+    "search-submit-button-title": "검색",
+    "search-label": "검색"
+  }
+}</script>
+<meta name="mermaid-theme" content="neutral">
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="사이드바 전환" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/03-skill.html">2부. AI 워크플로 설계</a></li><li class="breadcrumb-item"><a href="../chapters/05-harness.html"><span class="chapter-title">5장. Harness Engineering — AI를 신뢰 가능하게 만드는 구조</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="사이드바 전환" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="검색" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">AI를 이용한 사회과학 연구</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="검색"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">서문</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/00-intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">서장. 왜 지금 AI인가 — 이 책의 사용법</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">1부. 기초 인프라</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="토글 섹션">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-git.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">1장. Git과 재현가능한 연구</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-cli.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">2장. CLI와 컨텍스트 엔지니어링</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">2부. AI 워크플로 설계</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="토글 섹션">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-skill.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">3장. Skill — 반복 연구 작업의 모듈화</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-agent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">4장. Agent와 멀티에이전트</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-harness.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">5장. Harness Engineering — AI를 신뢰 가능하게 만드는 구조</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">3부. 연구 파이프라인 사례</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="토글 섹션">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-rag.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">6장. RAG와 문헌 검토 — Zotero 연동</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/07-annotation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">7장. LLM 텍스트 어노테이션</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">4부. 마치며</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="토글 섹션">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/08-close.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">8장. 검증·공개·다음에 남겨 둔 것</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">목차</h2>
+   
+  <ul>
+  <li><a href="#왜-하니스인가" id="toc-왜-하니스인가" class="nav-link active" data-scroll-target="#왜-하니스인가">5.1 왜 하니스인가</a>
+  <ul class="collapse">
+  <li><a href="#같은-모델-다른-결과" id="toc-같은-모델-다른-결과" class="nav-link" data-scroll-target="#같은-모델-다른-결과">5.1.1 같은 모델, 다른 결과</a></li>
+  <li><a href="#성능의-주요-레버는-모델이-아니다" id="toc-성능의-주요-레버는-모델이-아니다" class="nav-link" data-scroll-target="#성능의-주요-레버는-모델이-아니다">5.1.2 성능의 주요 레버는 모델이 아니다</a></li>
+  <li><a href="#사실-우리는-이-이야기를-알고-있다" id="toc-사실-우리는-이-이야기를-알고-있다" class="nav-link" data-scroll-target="#사실-우리는-이-이야기를-알고-있다">5.1.3 사실 우리는 이 이야기를 알고 있다</a></li>
+  </ul></li>
+  <li><a href="#planexecuteverify-루프" id="toc-planexecuteverify-루프" class="nav-link" data-scroll-target="#planexecuteverify-루프">5.2 Plan–Execute–Verify 루프</a>
+  <ul class="collapse">
+  <li><a href="#예제-회의록-분류-작업의-pev-재설계" id="toc-예제-회의록-분류-작업의-pev-재설계" class="nav-link" data-scroll-target="#예제-회의록-분류-작업의-pev-재설계">5.2.1 예제: 회의록 분류 작업의 PEV 재설계</a></li>
+  <li><a href="#인간의-자리" id="toc-인간의-자리" class="nav-link" data-scroll-target="#인간의-자리">5.2.2 인간의 자리</a></li>
+  </ul></li>
+  <li><a href="#평가-하니스-만들기" id="toc-평가-하니스-만들기" class="nav-link" data-scroll-target="#평가-하니스-만들기">5.3 평가 하니스 만들기</a>
+  <ul class="collapse">
+  <li><a href="#평가-하니스란" id="toc-평가-하니스란" class="nav-link" data-scroll-target="#평가-하니스란">5.3.1 평가 하니스란</a></li>
+  <li><a href="#골든셋-설계" id="toc-골든셋-설계" class="nav-link" data-scroll-target="#골든셋-설계">5.3.2 골든셋 설계</a></li>
+  <li><a href="#실습-r로-만드는-최소-평가-하니스" id="toc-실습-r로-만드는-최소-평가-하니스" class="nav-link" data-scroll-target="#실습-r로-만드는-최소-평가-하니스">5.3.3 실습: R로 만드는 최소 평가 하니스</a></li>
+  <li><a href="#오류-분석-숫자에서-개정으로" id="toc-오류-분석-숫자에서-개정으로" class="nav-link" data-scroll-target="#오류-분석-숫자에서-개정으로">5.3.4 오류 분석: 숫자에서 개정으로</a></li>
+  </ul></li>
+  <li><a href="#크로스체크와-다중-검증" id="toc-크로스체크와-다중-검증" class="nav-link" data-scroll-target="#크로스체크와-다중-검증">5.4 크로스체크와 다중 검증</a>
+  <ul class="collapse">
+  <li><a href="#이중-모델-교차-검증" id="toc-이중-모델-교차-검증" class="nav-link" data-scroll-target="#이중-모델-교차-검증">5.4.1 이중 모델 교차 검증</a></li>
+  <li><a href="#삼각검증-모델-a-모델-b-인간" id="toc-삼각검증-모델-a-모델-b-인간" class="nav-link" data-scroll-target="#삼각검증-모델-a-모델-b-인간">5.4.2 삼각검증: 모델 A × 모델 B × 인간</a></li>
+  <li><a href="#로깅-재현가능성의-최소-단위" id="toc-로깅-재현가능성의-최소-단위" class="nav-link" data-scroll-target="#로깅-재현가능성의-최소-단위">5.4.3 로깅: 재현가능성의 최소 단위</a></li>
+  </ul></li>
+  <li><a href="#실패-모드-도감" id="toc-실패-모드-도감" class="nav-link" data-scroll-target="#실패-모드-도감">5.5 실패 모드 도감</a></li>
+  <li><a href="#실습-과제" id="toc-실습-과제" class="nav-link" data-scroll-target="#실습-과제">실습 과제</a></li>
+  <li><a href="#이-장의-체크리스트" id="toc-이-장의-체크리스트" class="nav-link" data-scroll-target="#이-장의-체크리스트">이 장의 체크리스트</a></li>
+  <li><a href="#더-읽을거리" id="toc-더-읽을거리" class="nav-link" data-scroll-target="#더-읽을거리">더 읽을거리</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/03-skill.html">2부. AI 워크플로 설계</a></li><li class="breadcrumb-item"><a href="../chapters/05-harness.html"><span class="chapter-title">5장. Harness Engineering — AI를 신뢰 가능하게 만드는 구조</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">5장. Harness Engineering — AI를 신뢰 가능하게 만드는 구조</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">노트</span>이 장에서 배우는 것
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>하니스(harness) — 모델을 둘러싼 실행 계층 — 의 구성 요소를 열거할 수 있다</p></li>
+<li><p>Plan–Execute–Verify 루프를 자신의 연구 파이프라인에 적용할 수 있다</p></li>
+<li><p>골든셋 기반 평가 하니스를 설계하고 운영할 수 있다</p></li>
+<li><p>“더 좋은 모델”이 아니라 “더 좋은 구조”로 성능을 올리는 사고방식을 체득한다</p></li>
+</ol>
+</div>
+</div>
+<hr>
+<section id="왜-하니스인가" class="level2">
+<h2 class="anchored" data-anchor-id="왜-하니스인가">5.1 왜 하니스인가</h2>
+<section id="같은-모델-다른-결과" class="level3">
+<h3 class="anchored" data-anchor-id="같은-모델-다른-결과">5.1.1 같은 모델, 다른 결과</h3>
+<p>다음 두 연구자를 상상해 보자. 두 사람 모두 같은 모델을 쓴다. 같은 국회 회의록 자료를 갖고 있고, 과제도 같다. 발언 5만 건을 “정책 발언 / 정쟁 발언 / 절차 발언”으로 분류하는 일이다.</p>
+<p>연구자 A는 챗 창을 열고 회의록을 붙여 넣은 뒤 “이 발언들을 분류해줘”라고 입력한다. 결과가 그럴듯해 보이면 다음 묶음을 붙여 넣는다. 사흘 뒤 A는 5만 건의 라벨을 손에 넣었다. 이 라벨이 얼마나 정확한지 A는 모른다. 어떤 프롬프트를 썼는지도 이제는 정확히 기억나지 않는다. 세션마다 조금씩 바꿨기 때문이다.</p>
+<p>연구자 B는 분류를 시작하기 전에 일주일을 다른 일에 쓴다. 먼저 동료와 둘이서 발언 300건을 직접 코딩하고 코더 간 신뢰도를 계산한다. 이 300건이 B의 ’정답지’가 된다. 다음으로 프롬프트 초안을 만들어 정답지 중 150건에 돌려보고, 어디서 틀리는지 오류를 분석한 뒤 프롬프트를 고친다. 이 과정을 세 번 반복한다. 프롬프트의 각 버전과 성능은 표로 기록된다. 본 작업에 들어가서도 B의 스크립트는 500건 단위로 결과를 저장하고, 출력 형식이 어긋난 건은 자동으로 걸러 재시도하며, 모든 호출의 입력·출력·모델 버전·시각을 로그로 남긴다. 분류가 끝난 뒤 B는 남겨둔 정답지 150건으로 최종 성능을 측정해 논문의 방법론 절에 쓴다.</p>
+<p>A와 B의 차이는 모델이 아니다. <strong>모델을 둘러싼 구조</strong>다. 이 구조를 최근의 AI 공학에서는 하니스(harness)라고 부른다. 원래 하니스는 말에 채우는 마구(馬具), 혹은 작업자의 안전벨트를 뜻하는 말이다. 힘은 세지만 그 자체로는 방향도 안전장치도 없는 동력원에, 방향과 제어와 안전을 부여하는 장비. LLM에 대해서도 정확히 같은 역할을 하는 계층이 필요하며, 그것을 설계하는 일이 harness engineering이다.</p>
+<p>조금 더 격식을 갖춘 정의는 이렇다. 하니스란 기반 모델을 둘러싼 구조화된 실행 계층으로, 프롬프트, 컨텍스트 관리, 메모리, 도구, 오케스트레이션 로직, 실행 환경, 그리고 피드백·검증 메커니즘을 포괄한다. 모델이 ’무엇을 아는가’를 결정한다면, 하니스는 모델이 ’실제로 무엇을 하게 되는가’를 결정한다.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-harness-concept" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-harness-concept-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-harness-concept">flowchart TB
+    subgraph H["하니스 (harness)"]
+        direction TB
+        subgraph ROW1[" "]
+            direction LR
+            P["프롬프트 ·&lt;br/&gt;컨텍스트 관리"] ~~~ T["도구 ·&lt;br/&gt;실행 환경"]
+        end
+        M["모델"]
+        subgraph ROW2[" "]
+            direction LR
+            V["검증 메커니즘&lt;br/&gt;골든셋 · 게이트"] ~~~ L["로깅 ·&lt;br/&gt;버전 관리"]
+        end
+        ROW1 --&gt; M --&gt; ROW2
+        ROW2 --&gt;|"피드백"| ROW1
+    end
+    IN["과제"] --&gt; H --&gt; OUT["신뢰 가능한 산출물"]
+    classDef accent fill:#9E1B32,stroke:#9E1B32,color:#fff
+    class M accent
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-harness-concept-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;5.1: 하니스의 구성 요소. 모델이 ’무엇을 아는가’를 결정한다면, 하니스는 ’실제로 무엇을 하게 되는가’를 결정한다.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="성능의-주요-레버는-모델이-아니다" class="level3">
+<h3 class="anchored" data-anchor-id="성능의-주요-레버는-모델이-아니다">5.1.2 성능의 주요 레버는 모델이 아니다</h3>
+<p>하니스라는 개념이 단지 좋은 습관의 목록이 아니라는 점을 보여주는 증거가 있다. 2026년 초 LangChain 팀은 자사 코딩 에이전트의 벤치마크 성적을 끌어올리는 프로젝트의 결과를 공개했다. 주목할 점은 이들이 <strong>모델을 전혀 바꾸지 않았다</strong>는 것이다. 바꾼 것은 구조뿐이었다. 구조화된 검증 루프를 넣고, 에이전트에게 디렉토리 지도와 남은 시간 예산 같은 컨텍스트를 주입하고, 같은 행동을 반복하는 루프를 감지하는 미들웨어를 달고, 추론 자원을 계획 단계와 검증 단계에 집중시켰다. 그 결과 해당 에이전트는 Terminal Bench 2.0에서 30위권에서 상위 5위로 올라섰다. 하니스 설계가 모델 능력 못지않은, 어쩌면 그보다 큰 성능 레버라는 것을 보여주는 가장 구체적인 공개 사례다.</p>
+<p>이 발견이 사회과학 연구자에게 주는 함의는 크다. 첫째, 실용적 함의: 더 비싼 모델로 갈아타기 전에 자신의 파이프라인 구조부터 점검하라. 둘째, 방법론적 함의: 논문에 “GPT-X를 사용했다”라고만 쓰는 것은 “설문조사를 했다”라고만 쓰는 것과 같다. 결과를 결정한 것은 모델명이 아니라 그 모델을 어떤 구조 안에서 어떻게 부렸는가이며, 따라서 보고되어야 하는 것도 그 구조다.</p>
+</section>
+<section id="사실-우리는-이-이야기를-알고-있다" class="level3">
+<h3 class="anchored" data-anchor-id="사실-우리는-이-이야기를-알고-있다">5.1.3 사실 우리는 이 이야기를 알고 있다</h3>
+<p>하니스 엔지니어링이라는 말은 낯설지만, 그 내용은 사회과학 방법론 훈련을 받은 독자에게 전혀 새롭지 않다. 대응 관계를 놓고 보면 분명해진다.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>전통 내용분석</th>
+<th>LLM 파이프라인</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>코드북 개발</td>
+<td>프롬프트·출력 스키마 설계</td>
+</tr>
+<tr class="even">
+<td>코더 훈련</td>
+<td>few-shot 예시, 지시문 정교화</td>
+</tr>
+<tr class="odd">
+<td>코더 간 신뢰도 검증</td>
+<td>골든셋 평가 (5.3절)</td>
+</tr>
+<tr class="even">
+<td>코딩 불일치 조정 회의</td>
+<td>오류 분석과 프롬프트 개정</td>
+</tr>
+<tr class="odd">
+<td>코딩 절차의 문서화</td>
+<td>로깅과 버전 관리</td>
+</tr>
+</tbody>
+</table>
+<p>즉 하니스 엔지니어링은 우리가 이미 알고 있는 측정 타당화의 규율을, 코더가 사람이 아니라 모델인 상황에 이식하는 작업이다. 새로 배워야 할 것은 원리가 아니라 도구다. 이 관점을 유지하면 이 장의 나머지가 훨씬 편안하게 읽힐 것이다. 그리고 이 관점은 방어 논리로도 유용하다. “AI로 코딩한 결과를 어떻게 믿느냐”는 심사평을 받았을 때, 올바른 답변은 “최신 모델이라 정확하다”가 아니라 “인간 코더를 검증하는 것과 동일한 절차로 검증했으며, 그 결과는 다음과 같다”이다.</p>
+<blockquote class="blockquote">
+<p>📦 <strong>박스 5-1. ‘바이브 코딩’과 ’욜로 배포’ 사이</strong></p>
+<p>소프트웨어 업계에는 vibe-coding이라는 말이 있다. AI가 생성한 코드를 꼼꼼히 읽지 않고 “느낌상 맞는 것 같으면” 넘어가는 작업 방식이다. 그 끝에는 검증 없이 실제 서비스에 반영하는 yolo-deploy가 기다린다. 이에 대한 업계의 처방은 사람이 모든 줄을 읽는 것이 아니다 — 그것은 규모가 커지면 불가능하다. 처방은 <strong>검증을 빠르고 자동으로 만들어, 사람의 전문성을 산출물 검사에서 검사 장치의 설계로 옮기는 것</strong>이다. 교량 기술자가 리벳을 하나하나 눈으로 검사하는 대신 하중 시험을 설계하게 된 것과 같다.</p>
+<p>연구에도 같은 유혹과 같은 처방이 있다. 5만 건의 LLM 라벨을 전부 눈으로 확인할 수는 없다. 그러나 300건의 골든셋과 자동화된 평가 스크립트는 만들 수 있다. 연구자의 전문성이 들어가야 할 곳은 5만 건의 검토가 아니라 300건의 설계다.</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="planexecuteverify-루프" class="level2">
+<h2 class="anchored" data-anchor-id="planexecuteverify-루프">5.2 Plan–Execute–Verify 루프</h2>
+<p>하니스의 뼈대가 되는 제어 구조는 계획–실행–검증(Plan–Execute–Verify, 이하 PEV) 루프다. 세 단계는 각각 다음을 의미한다.</p>
+<p><strong>Plan(계획)</strong> — 실행 전에 ’무엇을 할 것인가’를 명세한다. 이 명세는 일종의 계약이다. 에이전트가 국회 회의록을 분류하기 전에, 어떤 파일을 읽어 어떤 스키마의 출력을 어디에 쓸 것인지를 먼저 산출하게 하고, 연구자가 이를 승인한다. 계획 단계의 산출물이 있어야 검증 단계에서 ’약속과 결과의 대조’가 가능해진다.</p>
+<p><strong>Execute(실행)</strong> — 승인된 계획을 제한된 환경 안에서 수행한다. 여기서 핵심은 권한의 경계다. 원자료 디렉토리는 읽기 전용으로, 출력은 지정된 폴더에만, 네트워크 접근은 필요한 API로만. 2장에서 다룬 권한 관리가 바로 이 단계의 안전장치다. 경계가 있어야 실패가 재앙이 아니라 데이터가 된다.</p>
+<p><strong>Verify(검증)</strong> — 실행 결과를 받아들일지 판정한다. 검증은 두 겹이다. 먼저 결정론적 검증: 출력 파일이 스키마에 맞는가, 행 수가 입력과 일치하는가, 라벨이 허용된 값 집합 안에 있는가 — 코드로 자동 판정할 수 있는 것들이다. 다음으로 인간 검토 게이트: 표본을 뽑아 사람이 읽는다. 판정의 결과는 네 갈래다 — 수용, 수정 후 재실행, 사람에게 에스컬레이션, 롤백.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-pev-loop" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pev-loop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-pev-loop">flowchart LR
+    P["Plan&lt;br/&gt;변경의 명세 = 계약"] --&gt; G1{"계획 승인&lt;br/&gt;(인간)"}
+    G1 --&gt;|승인| E["Execute&lt;br/&gt;권한 경계 안 실행&lt;br/&gt;배치 · 중간 저장"]
+    E --&gt; V["Verify&lt;br/&gt;결정론적 검증&lt;br/&gt;+ 통계적 검증"]
+    V --&gt; G2{"인간 게이트&lt;br/&gt;표본 검토"}
+    G2 --&gt;|수용| C["커밋"]
+    G2 --&gt;|수정| P
+    G2 --&gt;|에스컬레이션| H["사람이 직접 처리"]
+    G2 --&gt;|롤백| R["직전 커밋으로"]
+    classDef gate fill:#fff,stroke:#9E1B32,stroke-width:2px
+    classDef accent fill:#9E1B32,stroke:#9E1B32,color:#fff
+    class G1,G2 gate
+    class C accent
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pev-loop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;5.2: PEV 루프. 검증의 판정은 네 갈래이며, 수용의 최종 형태는 커밋이다.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="예제-회의록-분류-작업의-pev-재설계" class="level3">
+<h3 class="anchored" data-anchor-id="예제-회의록-분류-작업의-pev-재설계">5.2.1 예제: 회의록 분류 작업의 PEV 재설계</h3>
+<p>이 루프가 실제로 어떤 모습인지, 앞의 연구자 B의 작업을 PEV 언어로 다시 써 보자.</p>
+<pre><code>[Plan]
+  입력: minutes/*.csv (읽기 전용, 총 50,000행)
+  처리: 프롬프트 v3 (prompts/classify_v3.md), 모델 X (버전 고정)
+  출력: output/labels_{batch}.csv
+        스키마: id, label ∈ {정책, 정쟁, 절차}, rationale, model, ts
+  배치: 500행 단위, 배치 간 중간 저장
+  중단 조건: 형식 오류율 &gt; 2% 이면 즉시 중단
+
+[Execute]
+  batch 01/100 ... 완료 (형식 오류 3건 → 자동 재시도 → 0건)
+  batch 02/100 ... 완료
+  ...
+
+[Verify]
+  결정론적: 행 수 일치 ✓ / 스키마 ✓ / 라벨 값 집합 ✓
+  통계적:   라벨 분포가 골든셋 분포와 유의하게 다르지 않은가 ✓
+  인간 게이트: 무작위 100건 검토 → 승인
+  → 수용. 로그와 함께 커밋.</code></pre>
+<p>주목할 부분이 세 군데 있다. 첫째, 중단 조건이 사전에 정의되어 있다. “이상하면 멈춘다”가 아니라 “형식 오류율 2%를 넘으면 멈춘다”. 둘째, 검증에 통계적 층이 있다. 개별 건의 정오는 표본으로만 확인할 수 있지만, 분포의 이상은 전수로 확인할 수 있다 — 예컨대 특정 배치에서 갑자기 ‘정쟁’ 라벨이 3배로 뛰었다면 그 배치는 사람이 봐야 한다. 셋째, 수용의 최종 형태가 커밋이다. 1장의 Git이 여기서 롤백 장치로 돌아온다. 검증을 통과한 상태만 이력에 남기면, 실패한 실행은 언제든 직전 상태로 되돌릴 수 있다.</p>
+</section>
+<section id="인간의-자리" class="level3">
+<h3 class="anchored" data-anchor-id="인간의-자리">5.2.2 인간의 자리</h3>
+<p>PEV 루프에 대해 흔히 나오는 오해는 이것이 인간을 배제하는 자동화라는 것이다. 실제는 반대다. PEV는 <strong>인간이 개입할 지점을 명시적으로 설계하는</strong> 프레임워크다. 계획 승인, 검증 게이트, 에스컬레이션 — 세 곳이 인간의 자리로 예약되어 있다. 자동화되는 것은 판단이 아니라 판단에 필요한 정보의 수집이다.</p>
+<p>어디에 사람을 세울지는 작업의 성격에 달렸다. 유용한 경험칙은 <strong>되돌리기 어려운 지점 직전에 게이트를 둔다</strong>는 것이다. 원자료를 건드리는 작업, 외부로 나가는 산출물(투고, 공개), 비용이 큰 대량 API 호출의 개시 — 이런 지점 앞에는 반드시 사람의 승인이 있어야 한다. 반대로 중간 산출물의 생성처럼 얼마든지 다시 할 수 있는 단계는 자동으로 흘려보내도 좋다.</p>
+<hr>
+</section>
+</section>
+<section id="평가-하니스-만들기" class="level2">
+<h2 class="anchored" data-anchor-id="평가-하니스-만들기">5.3 평가 하니스 만들기</h2>
+<p>이 절이 이 장의, 어쩌면 이 책의 심장이다. 앞으로 7장(텍스트 어노테이션)에서 이 구조를 실전에 쓰고, 시각·OCR·서베이 같은 확장 주제(8장 로드맵)에도 같은 뼈대를 다시 쓰게 된다.</p>
+<section id="평가-하니스란" class="level3">
+<h3 class="anchored" data-anchor-id="평가-하니스란">5.3.1 평가 하니스란</h3>
+<p>평가 하니스(eval harness)는 정답이 알려진 데이터셋 — 골든셋(golden set) — 을 순회하면서 파이프라인을 호출하고, 응답을 수집해, 지표로 채점하는 검증 계층이다. 중요한 특징은 이것이 오프라인 장치라는 점이다. 본 데이터 5만 건을 처리하는 ’실전 경로’가 아니라, 그 전에 개발 단계에서 돌아가는 ’연습 경기장’이다. 프롬프트를 고칠 때마다, 모델을 바꿀 때마다, 같은 골든셋에 대해 같은 방식으로 점수를 매긴다. 그래야 “v2가 v3보다 나은가”라는 질문에 느낌이 아니라 숫자로 답할 수 있다.</p>
+</section>
+<section id="골든셋-설계" class="level3">
+<h3 class="anchored" data-anchor-id="골든셋-설계">5.3.2 골든셋 설계</h3>
+<p>사회과학에서 골든셋은 곧 인간 코딩 검증 세트다. 설계 시 결정할 것이 네 가지다.</p>
+<p><strong>크기.</strong> 정답은 “많을수록 좋다”지만 인간 코딩은 비싸다. 실무 하한선으로 200건을 권한다. 150건은 개발용(프롬프트를 고치며 반복 평가), 50건 이상은 최종 평가용으로 봉인한다. 이 분리가 중요하다 — 개발 중에 계속 들여다본 데이터로 최종 성능을 보고하면, 프롬프트가 그 데이터에 과적합된 만큼 성능이 부풀려진다. 기계학습의 train/test 분리와 정확히 같은 논리다.</p>
+<p><strong>표집.</strong> 무작위 표집이 기본이지만, 층화가 필요할 때가 많다. 희귀 범주(예: 전체의 3%인 라벨)는 무작위 200건에 6건밖에 안 들어온다. 범주별 최소 건수를 확보하도록 층화하고, 전체 지표 계산 시 가중치로 되돌린다.</p>
+<p><strong>경계 사례.</strong> 골든셋에는 쉬운 사례만이 아니라 코더들이 실제로 고민한 경계 사례가 포함되어야 한다. 코더 간 불일치가 났다가 조정 회의로 확정된 사례들이 가장 좋은 재료다. 모델의 진짜 실력은 경계에서 드러난다.</p>
+<p><strong>코더 간 신뢰도의 기록.</strong> 골든셋 자체의 품질 지표다. 인간 코더 2인의 Krippendorff’s α가 0.72였다면, 그것이 이 과제에서 기대할 수 있는 성능의 현실적 상한선 근처다. LLM에게 인간끼리도 합의 못 하는 수준의 정확도를 요구하는 것은 공정하지 않고, 반대로 LLM–인간 일치도가 인간–인간 일치도에 근접한다면 그것은 강력한 타당성 증거다.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-goldenset" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-goldenset-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-goldenset">flowchart LR
+    A["인간 코딩 300건&lt;br/&gt;코더 2인 · α 보고&lt;br/&gt;경계 사례 포함"] --&gt; B["dev 150&lt;br/&gt;개발용"]
+    A --&gt; C["final 50+&lt;br/&gt;봉인"]
+    B --&gt; D["평가 실행"]
+    D --&gt; E["오류 분석"]
+    E --&gt; F["프롬프트 개정&lt;br/&gt;v1 → v2 → v3"]
+    F --&gt; D
+    F --&gt;|"개발 종료"| G{"봉인 해제&lt;br/&gt;최종 평가 1회"}
+    C --&gt; G
+    G --&gt; H["논문 방법론 절에 보고"]
+    classDef fixed fill:#E5E7EB,stroke:#6B7280
+    classDef gate fill:#fff,stroke:#9E1B32,stroke-width:2px
+    classDef ai fill:#fff,stroke:#6B7280,stroke-dasharray:5 4
+    class C fixed
+    class G gate
+    class D,F ai
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-goldenset-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;5.3: 개발용 골든셋은 반복 평가 루프를 돌고, 봉인 세트는 최종 보고 직전 단 한 번 열린다.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="실습-r로-만드는-최소-평가-하니스" class="level3">
+<h3 class="anchored" data-anchor-id="실습-r로-만드는-최소-평가-하니스">5.3.3 실습: R로 만드는 최소 평가 하니스</h3>
+<p>개념은 충분하다. 이제 만들자. 아래는 tidyverse 사용자를 위한 최소 구현이다. (전체 실행 가능 코드는 실습 저장소 <code>ch05-eval-harness/</code>에 있다. Python 버전도 함께 제공한다.)</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(irr)        <span class="co"># kripp.alpha()</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 골든셋 로드 -----------------------------------------------</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>golden <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"golden/dev_150.csv"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 컬럼: id, text, human_label</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. 파이프라인 호출 함수 ---------------------------------------</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># call_llm()은 저장소의 유틸: 프롬프트 파일 + 텍스트를 받아</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># API를 호출하고, JSON 응답을 파싱하며, 실패 시 재시도한다.</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>classify_one <span class="ot">&lt;-</span> <span class="cf">function</span>(text, prompt_file, model) {</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  raw <span class="ot">&lt;-</span> <span class="fu">call_llm</span>(</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">prompt =</span> <span class="fu">read_file</span>(prompt_file),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">input  =</span> text,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">model  =</span> model,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">schema =</span> <span class="fu">c</span>(<span class="st">"label"</span>, <span class="st">"rationale"</span>)   <span class="co"># JSON 스키마 강제</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  raw<span class="sc">$</span>label</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. 골든셋 순회 ------------------------------------------------</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>run_eval <span class="ot">&lt;-</span> <span class="cf">function</span>(golden, prompt_file, model, run_id) {</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> golden <span class="sc">|&gt;</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">llm_label =</span> <span class="fu">map_chr</span>(text, classify_one,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>                          <span class="at">prompt_file =</span> prompt_file, <span class="at">model =</span> model),</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">prompt    =</span> prompt_file,</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>      <span class="at">model     =</span> model,</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">run_id    =</span> run_id,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">ts        =</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 모든 실행을 이력으로 축적 (로깅)</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_csv</span>(results, <span class="fu">str_glue</span>(<span class="st">"runs/{run_id}.csv"</span>))</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  results</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. 채점 -------------------------------------------------------</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> <span class="cf">function</span>(results) {</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  acc <span class="ot">&lt;-</span> <span class="fu">mean</span>(results<span class="sc">$</span>llm_label <span class="sc">==</span> results<span class="sc">$</span>human_label)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> <span class="fu">kripp.alpha</span>(</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rbind</span>(results<span class="sc">$</span>human_label, results<span class="sc">$</span>llm_label),</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"nominal"</span>)<span class="sc">$</span>value</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  cm <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">human =</span> results<span class="sc">$</span>human_label, <span class="at">llm =</span> results<span class="sc">$</span>llm_label)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lst</span>(acc, alpha, cm)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. 버전 비교 --------------------------------------------------</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>r2 <span class="ot">&lt;-</span> <span class="fu">run_eval</span>(golden, <span class="st">"prompts/classify_v2.md"</span>, <span class="st">"model-x"</span>, <span class="st">"v2_0707"</span>)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>r3 <span class="ot">&lt;-</span> <span class="fu">run_eval</span>(golden, <span class="st">"prompts/classify_v3.md"</span>, <span class="st">"model-x"</span>, <span class="st">"v3_0707"</span>)</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="fu">score</span>(r2)<span class="sc">$</span>alpha   <span class="co"># 예: 0.56</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="fu">score</span>(r3)<span class="sc">$</span>alpha   <span class="co"># 예: 0.68</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<p>핵심 설계 결정 세 가지를 짚는다.</p>
+<p>첫째, <strong>모든 실행이 파일로 남는다</strong>(<code>runs/</code>). 어떤 프롬프트·모델·시각의 실행인지가 데이터 자체에 붙어 있다. 6개월 뒤 심사평에 답할 때 이 폴더가 여러분을 구한다.</p>
+<p>둘째, <strong>채점이 함수로 분리되어 있다</strong>. 정확도만이 아니라 α와 혼동 행렬을 함께 낸다. 정확도는 클래스 불균형에 취약하다 — ’절차 발언’이 전체의 70%라면 전부 ’절차’라고 찍는 모델도 정확도 70%다. α는 우연 일치를 보정하고, 혼동 행렬은 어떤 범주끼리 헷갈리는지를 보여준다. 서열 변수(예: 강도 1~5)라면 가중 카파나 서열용 α를 쓴다.</p>
+<p>셋째, <strong>비교가 기본 동작이다</strong>. 하니스의 존재 이유는 단일 점수가 아니라 버전 간 비교다. 아래처럼 이력표를 유지하라.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>버전</th>
+<th>변경 내용</th>
+<th>α (dev)</th>
+<th>주요 오류</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>v1</td>
+<td>초안</td>
+<td>0.46</td>
+<td>’정쟁’을 ’정책’으로 과다 분류</td>
+</tr>
+<tr class="even">
+<td>v2</td>
+<td>정쟁 정의에 배제 기준 추가</td>
+<td>0.56</td>
+<td>짧은 발언에서 불안정</td>
+</tr>
+<tr class="odd">
+<td>v3</td>
+<td>경계 예시 4개 추가(few-shot)</td>
+<td>0.68</td>
+<td>잔여 오류는 인간 불일치 사례와 겹침</td>
+</tr>
+</tbody>
+</table>
+<div id="fig-alpha-trend" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-alpha-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../figures/fig5-4_alpha_by_version.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-alpha-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;5.4: 프롬프트 버전별 성능. 실습 저장소 figures/make_figures.R이 모의 모드에서 생성한다.
+</figcaption>
+</figure>
+</div>
+<p>마지막 행의 발견 — 모델이 틀리는 사례가 인간 코더끼리도 갈렸던 사례와 겹친다 — 은 실전에서 자주 만나는, 대단히 안심되는 패턴이다. 남은 오류가 모델의 결함이 아니라 과제 자체의 애매함이라는 뜻이기 때문이다.</p>
+</section>
+<section id="오류-분석-숫자에서-개정으로" class="level3">
+<h3 class="anchored" data-anchor-id="오류-분석-숫자에서-개정으로">5.3.4 오류 분석: 숫자에서 개정으로</h3>
+<p>점수는 진단이 아니다. v2에서 v3로 가는 길은 α 0.56이라는 숫자가 아니라, 오분류 사례를 하나씩 읽는 데서 나왔다. 오류 분석의 절차는 내용분석의 불일치 조정 회의와 같다. (1) 혼동 행렬에서 가장 큰 오류 셀을 찾는다. (2) 해당 사례 10~20건을 읽으며 패턴을 찾는다 — 특정 길이? 특정 화자? 특정 표현? (3) 패턴이 코드북(프롬프트)의 결함이면 정의를 고치고, 모델의 한계면 few-shot 예시를 추가하고, 과제의 본질적 애매함이면 그대로 두고 한계로 보고한다. (4) 재평가한다.</p>
+<div id="fig-confusion" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-confusion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../figures/fig5-5_confusion_v3.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-confusion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;5.5: 프롬프트 v3의 혼동 행렬. 가장 큰 오류 셀이 오류 분석의 출발점이다.
+</figcaption>
+</figure>
+</div>
+<p>이 반복이 세 번을 넘어가는데도 개선이 없다면, 프롬프트가 아니라 범주 체계 자체를 의심할 때다. 인간 코더도 훈련시켜 보면 코드북의 결함이 드러나듯이.</p>
+<hr>
+</section>
+</section>
+<section id="크로스체크와-다중-검증" class="level2">
+<h2 class="anchored" data-anchor-id="크로스체크와-다중-검증">5.4 크로스체크와 다중 검증</h2>
+<p>골든셋 평가는 검증의 왕도지만, 골든셋이 커버하지 못하는 영역이 있다. 본 데이터 전체에서의 이상 징후, 그리고 분석 ‘코드’ 자체의 오류다. 이 절은 그 빈틈을 메우는 두 가지 장치를 다룬다.</p>
+<section id="이중-모델-교차-검증" class="level3">
+<h3 class="anchored" data-anchor-id="이중-모델-교차-검증">5.4.1 이중 모델 교차 검증</h3>
+<p>같은 과제를 서로 다른 계열의 모델 두 개에 시키고 불일치를 표시하는 방법이다. 불일치 사례만 사람이 보면, 전수 검토 없이 위험 지점을 좁힐 수 있다. 통계학의 이중 입력(double entry) 검증과 같은 발상이다.</p>
+<blockquote class="blockquote">
+<p>📦 <strong>박스 5-2. 사례: crosscheck — 두 CLI 에이전트의 상호 코드 검증</strong></p>
+<p>필자의 작업 환경에는 crosscheck라는 스킬(3장)이 있다. 동작은 단순하다. Claude Code가 작성한 분석 스크립트를, 다른 계열의 CLI 에이전트(Codex CLI)에게 “이 코드가 명세를 충족하는지, 통계적 오류는 없는지 독립적으로 검토하라”고 넘긴다. 반대 방향도 마찬가지다.</p>
+<p>실제로 잡아낸 오류의 예: 가중치를 적용해야 할 기술통계에서 가중치 인자가 누락된 것, 결측을 0으로 암묵 처리한 join, 그리고 회귀 표의 표준오차 클러스터링 수준이 본문 서술과 다른 것. 셋 다 실행은 되고 결과도 그럴듯해서, 필자 혼자였다면 지나쳤을 가능성이 큰 오류들이다.</p>
+<p>정직한 한계도 적어 둔다. 두 모델이 <strong>같은 오류를 공유할 수 있다</strong>. 특히 학습 데이터에서 흔한 잘못된 관행(예: 특정 패키지의 널리 퍼진 오용)은 두 모델이 함께 통과시킨다. 교차 검증은 독립적 오류를 잡는 장치이지, 상관된 오류까지 잡아 주지는 않는다. 그래서 다음 항의 세 번째 축, 인간 표본이 필요하다.</p>
+</blockquote>
+</section>
+<section id="삼각검증-모델-a-모델-b-인간" class="level3">
+<h3 class="anchored" data-anchor-id="삼각검증-모델-a-모델-b-인간">5.4.2 삼각검증: 모델 A × 모델 B × 인간</h3>
+<p>어노테이션 과제라면 세 코더 — 모델 A, 모델 B, 인간 표본 — 의 삼각 구도를 만들 수 있다. 여기서 정보량이 가장 큰 데이터는 합의 사례가 아니라 불일치 사례다. A와 B가 일치하는데 인간과 다르다면 프롬프트(코드북)의 체계적 결함을, A와 B가 갈린다면 과제의 애매함이나 모델 간 편향 차이를 시사한다. 불일치 사례집은 그 자체로 논문 부록감이다.</p>
+</section>
+<section id="로깅-재현가능성의-최소-단위" class="level3">
+<h3 class="anchored" data-anchor-id="로깅-재현가능성의-최소-단위">5.4.3 로깅: 재현가능성의 최소 단위</h3>
+<p>크로스체크든 골든셋이든, 전제는 모든 것이 기록된다는 것이다. 최소 로깅 스키마를 제안한다. 모든 LLM 호출에 대해: 입력(또는 그 해시), 출력, 프롬프트 파일과 버전, 모델명과 버전, 파라미터(temperature 등), 시각, 비용. 저장소의 <code>call_llm()</code> 유틸은 이것을 자동으로 남긴다.</p>
+<p>이 로그는 세 번 쓰인다. 개발 중에는 디버깅에, 투고 시에는 방법론 절과 AI 사용 공개 진술(8장)의 원천으로, 게재 후에는 재현 요청에 대한 답변으로. 로그가 없으면 세 장면 모두에서 “기억나지 않는다”라고 답해야 한다.</p>
+<hr>
+</section>
+</section>
+<section id="실패-모드-도감" class="level2">
+<h2 class="anchored" data-anchor-id="실패-모드-도감">5.5 실패 모드 도감</h2>
+<p>하니스를 설계한다는 것은 결국 실패를 예상한다는 것이다. 실전에서 반복적으로 만나는 실패를 유형별로 정리한다. 각 항목은 ‘증상 → 탐지 → 방어’ 순이다.</p>
+<p><strong>① 형식 실패.</strong> JSON이 깨지거나, 요구한 필드가 빠지거나, 라벨 대신 설명문이 온다. <em>탐지</em>: 스키마 검증기(결정론적, 전수 가능). <em>방어</em>: 출력 스키마 강제 옵션 사용, 실패 시 자동 재시도(상한 2~3회), 재시도 후에도 실패하면 해당 건을 ’미분류’로 격리하고 다음으로 — 파이프라인 전체를 멈추지 않는다.</p>
+<p><strong>② 지시 이탈.</strong> 형식은 맞는데 지시를 어긴다. “판단 불가 범주를 쓰지 말라”고 했는데 쓴다거나, 요약하라니 번역을 한다거나. <em>탐지</em>: 허용 값 집합 검사 + 표본 검토. <em>방어</em>: 지시의 서두 배치(긴 프롬프트의 끝은 잊힌다), 금지가 아닌 대안 제시(“판단이 어려우면 가장 가까운 범주를 고르고 rationale에 불확실성을 기록하라”).</p>
+<p><strong>③ 그럴듯한 환각.</strong> 가장 위험한 유형. 문법적으로 완벽하고 내용상 그럴듯한 허구 — 존재하지 않는 인용(6장), 원문에 없는 단어를 넣는 추출·OCR 유형의 오류, 지어낸 수치. <em>탐지</em>: 형식 검사로는 불가능. 원천 대조만이 방법이다 — 인용은 라이브러리 대조, 추출·전사는 원본 표본 대조, 수치는 전수 검증 규칙. <em>방어</em>: 근거 제시 강제(rationale에 원문 위치 인용 요구), 그리고 애초에 생성 범위를 좁히는 설계 — 자유 생성보다 분류가, 분류보다 추출이 환각에 강하다.</p>
+<p><strong>④ 위치·순서 편향.</strong> 선택지 목록의 앞쪽을 선호하거나, 긴 입력의 중간을 소홀히 한다. <em>탐지</em>: 선택지 순서를 섞은 두 실행의 비교. <em>방어</em>: 선택지 무작위화, 긴 문서는 분할 처리.</p>
+<p><strong>⑤ 다수 클래스 쏠림.</strong> 애매하면 가장 흔한 범주로 도피한다. <em>탐지</em>: 골든셋 대비 라벨 분포 비교(χ² 등), 희귀 범주의 재현율 별도 확인. <em>방어</em>: 희귀 범주의 few-shot 예시 보강, 경계 기준의 명문화.</p>
+<p><strong>⑥ 장기 작업의 표류(drift).</strong> 배치 1과 배치 80의 기준이 미묘하게 다르다. 긴 세션에서 컨텍스트가 오염되거나, 도중에 모델이 업데이트되는 경우다. <em>탐지</em>: 배치별 라벨 분포의 시계열 관제; 골든셋 일부를 ’카나리아’로 각 배치에 몰래 섞어 배치별 정확도를 추적하는 방법이 특히 강력하다. <em>방어</em>: 배치마다 새 컨텍스트로 시작(상태를 이어받지 않기), 모델 버전 고정.</p>
+<div id="fig-canary" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-canary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../figures/fig5-6_canary_drift.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-canary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+그림&nbsp;5.6: 배치별 카나리아 정확도. 사전 결정한 중단 기준과 표류 구간.
+</figcaption>
+</figure>
+</div>
+<p><strong>⑦ 검증 장치 자체의 실패.</strong> 마지막으로, 검증 단계도 오류를 낼 수 있다. 역사 문서 OCR에서 LLM 후보정이 성능을 오히려 떨어뜨린 사례가 보고되어 있다 — 보정기가 원문에 없는 ‘그럴듯한’ 수정을 가한 것이다. 교훈: 하니스에 새 부품을 달 때는 그 부품도 골든셋으로 평가하라. 검증되지 않은 검증은 검증이 아니다.</p>
+<hr>
+</section>
+<section id="실습-과제" class="level2">
+<h2 class="anchored" data-anchor-id="실습-과제">실습 과제</h2>
+<ol type="1">
+<li><strong>골든셋 구축과 첫 평가.</strong> 자신의 어노테이션 과제(없으면 저장소의 국회 회의록 연습 데이터)에서 골든셋 100건을 구축하라 — 코더 2인, α 보고, 경계 사례 포함. 5.3.3의 하니스로 첫 평가를 실행하고 α·혼동 행렬을 보고하라.</li>
+<li><strong>프롬프트 이력표.</strong> 오류 분석 → 개정 → 재평가를 두 차례 반복하고, 5.3.3 형식의 버전 이력표와 최종 버전 선택의 근거를 한 단락으로 서술하라.</li>
+<li><strong>실패 도감 적용.</strong> 자신의 실행 로그에서 실패 사례 10건을 찾아 5.5의 유형으로 분류하고, 유형별 방어책을 하니스에 반영하라. 반영 전후의 성능을 비교하라.</li>
+<li><strong>(심화) 카나리아 설계.</strong> 본 데이터 처리에 골든셋 카나리아를 섞는 스크립트를 작성하고, 배치별 정확도 그래프를 산출하라.</li>
+</ol>
+</section>
+<section id="이-장의-체크리스트" class="level2">
+<h2 class="anchored" data-anchor-id="이-장의-체크리스트">이 장의 체크리스트</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">골든셋 없이 본 데이터에 파이프라인을 돌리지 않았다</label></li>
+<li><label><input type="checkbox">개발용과 최종 평가용 골든셋이 분리·봉인되어 있다</label></li>
+<li><label><input type="checkbox">모든 실행이 프롬프트·모델 버전·시각과 함께 로그로 남는다</label></li>
+<li><label><input type="checkbox">검증 통과 기준(지표와 임계값)을 실행 전에 정했다</label></li>
+<li><label><input type="checkbox">실패 시 롤백 경로(Git 커밋 단위)가 있다</label></li>
+<li><label><input type="checkbox">새로 추가한 검증 장치도 평가했다</label></li>
+</ul>
+</section>
+<section id="더-읽을거리" class="level2">
+<h2 class="anchored" data-anchor-id="더-읽을거리">더 읽을거리</h2>
+<p>(웹 자료의 주소는 2026년 8월에 접속을 확인했다.)</p>
+<ul>
+<li>LangChain. “Improving Deep Agents with harness engineering.” <a href="https://blog.langchain.com/improving-deep-agents-with-harness-engineering/" class="uri">https://blog.langchain.com/improving-deep-agents-with-harness-engineering/</a> — <strong>모델을 고정한 채</strong> 하니스만 고쳐 Terminal Bench 2.0 점수를 52.8에서 66.5로 올린 사례 연구. 5.1.1의 주장에 대한 가장 구체적인 증거다</li>
+<li>Ning, X. et al.&nbsp;(2026). “Code as Agent Harness.” arXiv:2605.18747. <a href="https://arxiv.org/abs/2605.18747" class="uri">https://arxiv.org/abs/2605.18747</a> — 코드를 하니스로 쓰는 접근을 정리한 서베이. 이 장이 다룬 조각들이 더 넓은 지형의 어디쯤인지 확인할 수 있다</li>
+<li>Anthropic. “Effective harnesses for long-running agents.” <a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" class="uri">https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents</a> — 오래 도는 에이전트의 하니스 설계를 도구 제작자 쪽에서 서술한 글</li>
+<li>ai-boost/awesome-harness-engineering. <a href="https://github.com/ai-boost/awesome-harness-engineering" class="uri">https://github.com/ai-boost/awesome-harness-engineering</a> — 도구·패턴·평가 큐레이션 목록</li>
+<li>DeepEval. “Eval harness: What it is, how to use it, and why you should care.” <a href="https://deepeval.com/blog/what-is-an-eval-harness" class="uri">https://deepeval.com/blog/what-is-an-eval-harness</a> — 평가 하니스를 “골든셋을 돌며 에이전트를 호출하고 응답과 실행 추적을 모아 지표로 채점하는 층”으로 정의한다. 5.3의 구성과 대조해 읽으면 좋다</li>
+<li>Grimmer, J. &amp; Stewart, B. M. (2013). “Text as Data: The Promise and Pitfalls of Automatic Content Analysis Methods for Political Texts.” <em>Political Analysis</em> 21(3): 267–297 — “validate, validate, validate”의 원전. 8장에서 다시 묶는다</li>
+</ul>
+<p><em>다음 장 예고: 6장에서 문헌 추출 파이프라인에, 7장에서 텍스트 어노테이션 실전에 이 하니스를 그대로 쓴다. 확장 주제(시각·OCR·서베이)에도 같은 뼈대가 재사용된다 — 그 위치는 8장 로드맵에 적어 두었다.</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "복사완료!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "복사완료!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/04-agent.html" class="pagination-link" aria-label="4장. Agent와 멀티에이전트">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">4장. Agent와 멀티에이전트</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/06-rag.html" class="pagination-link" aria-label="6장. RAG와 문헌 검토 — Zotero 연동">
+        <span class="nav-page-text"><span class="chapter-title">6장. RAG와 문헌 검토 — Zotero 연동</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
