@@ -1,0 +1,9 @@
+.DS_Store
+.Rhistory
+.RData
+output/
+**/output/
+.env
+*.key
+.venv/
+__pycache__/
